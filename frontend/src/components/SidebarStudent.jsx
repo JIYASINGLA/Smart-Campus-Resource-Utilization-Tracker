@@ -8,6 +8,7 @@ import {
   ClipboardList,
   User,
   LogOut,
+  FlaskConical,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -17,8 +18,8 @@ export default function SidebarStudent() {
 
   const menuItems = [
     { name: "Dashboard", icon: <LayoutDashboard />, path: "/studentdashboard" },
-    { name: "Rooms", icon: <Calendar />, path: "/rooms" },
-    { name: "Labs", icon: <ClipboardList />, path: "/labs" },
+    { name: "Rooms", icon: <Monitor />, path: "/rooms" }, 
+    { name: "Labs", icon: <FlaskConical />, path: "/labs" },
     { name: "Teacher", icon: <BookOpen />, path: "/teacherstudent" },
     { name: "Notifications", icon: <Bell />, path: "/student-notifications" },
   ];

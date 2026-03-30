@@ -11,7 +11,7 @@ export default function RoomAdmin() {
   const [equipmentFilter, setEquipmentFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
-  // Dummy data
+  // Initial dummy data
   useEffect(() => {
     setRooms([
       { id: 1, name: "L-402", capacity: 45, available: true, department: "CSE", equipment: "Projector" },
@@ -33,6 +33,17 @@ export default function RoomAdmin() {
       (!expressOnly || room.available === true)
     );
   });
+
+  // Load more rooms function
+  const loadMoreRooms = () => {
+    const nextId = rooms.length + 1;
+    const newRooms = [
+      { id: nextId, name: `L-${400 + nextId}`, capacity: 45 + nextId, available: true, department: "CSE", equipment: "Projector" },
+      { id: nextId + 1, name: `L-${400 + nextId + 1}`, capacity: 50 + nextId, available: false, department: "IT", equipment: "AC" },
+      { id: nextId + 2, name: `L-${400 + nextId + 2}`, capacity: 55 + nextId, available: true, department: "ECE", equipment: "Projector" },
+    ];
+    setRooms([...rooms, ...newRooms]);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -159,10 +170,18 @@ export default function RoomAdmin() {
               );
             })}
           </div>
+
+          {/* LOAD MORE BUTTON */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={loadMoreRooms}
+              className="px-6 py-2 transition bg-white border rounded shadow hover:bg-gray-100"
+            >
+              Load More Rooms
+            </button>
+          </div>
         </div>
       </div>
-
-      
     </div>
   );
 }

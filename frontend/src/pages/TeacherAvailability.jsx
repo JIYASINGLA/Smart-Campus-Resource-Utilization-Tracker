@@ -16,9 +16,36 @@ const teachersData = [
   { name: "Mrs. Iyer", subject: "Cloud Computing", room: "Room 305", status: "Available" },
 ];
 
+// Example timetable data for teachers (expanded for full week)
+const timetableData = {
+  "Dr. Sharma": [
+    { day: "Monday", time: "09:00 - 10:30", class: "CS101-A", subject: "Data Structures", room: "Room 101", type: "Lecture" },
+    { day: "Tuesday", time: "11:00 - 12:30", class: "CS101-B", subject: "Data Structures Lab", room: "Lab 1", type: "Lab" },
+    { day: "Wednesday", time: "09:00 - 10:30", class: "CS101-A", subject: "Algorithms", room: "Room 101", type: "Lecture" },
+    { day: "Thursday", time: "10:00 - 11:30", class: "CS101-C", subject: "Data Structures", room: "Room 102", type: "Lecture" },
+    { day: "Friday", time: "01:00 - 02:30", class: "CS101-B", subject: "Lab Practice", room: "Lab 1", type: "Lab" },
+  ],
+  "Prof. Mehta": [
+    { day: "Monday", time: "10:00 - 11:30", class: "CS201-A", subject: "Operating System", room: "Room 170", type: "Lecture" },
+    { day: "Wednesday", time: "02:00 - 03:30", class: "CS201-B", subject: "OS Lab", room: "Lab 2", type: "Lab" },
+    { day: "Friday", time: "11:00 - 12:30", class: "CS201-A", subject: "Operating System", room: "Room 170", type: "Lecture" },
+  ],
+  // Add other teachers here
+};
+
+// Type color mapping
+const typeColors = {
+  Lecture: "bg-green-500",
+  Lab: "bg-blue-500",
+  Tutorial: "bg-purple-500",
+};
+
+const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
 export default function TeacherAvailability() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
   const filteredTeachers = teachersData.filter((teacher) => {
     const matchesSearch = teacher.name.toLowerCase().includes(search.toLowerCase());
@@ -28,10 +55,7 @@ export default function TeacherAvailability() {
 
   return (
     <div className="flex">
-  
-
       <div className="flex-1 min-h-screen p-8 bg-gradient-to-br from-pink-50 via-purple-50 to-gray-100">
-
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -111,9 +135,9 @@ export default function TeacherAvailability() {
                 <th className="p-4">Subject</th>
                 <th className="p-4">Room</th>
                 <th className="p-4">Status</th>
+                <th className="p-4">Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {filteredTeachers.map((teacher, i) => (
                 <motion.tr
@@ -129,10 +153,8 @@ export default function TeacherAvailability() {
                     />
                     <span className="font-semibold">{teacher.name}</span>
                   </td>
-
                   <td className="p-4">{teacher.subject}</td>
                   <td className="p-4">{teacher.room}</td>
-
                   <td
                     className={`p-4 font-bold ${
                       teacher.status === "Available"
@@ -143,6 +165,14 @@ export default function TeacherAvailability() {
                     }`}
                   >
                     {teacher.status}
+                  </td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => setSelectedTeacher({ name: teacher.name, index: i })}
+                      className="px-3 py-1 text-sm font-semibold text-white bg-purple-500 rounded-lg hover:bg-purple-600"
+                    >
+                      View Timetable
+                    </button>
                   </td>
                 </motion.tr>
               ))}
@@ -179,6 +209,132 @@ export default function TeacherAvailability() {
           <p className="text-sm">Teacher Availability System</p>
         </motion.div>
 
+        {/* ---------------- Weekly Timetable Modal ---------------- */}
+{selectedTeacher && (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="fixed inset-0 z-50 flex items-center justify-center p-2 bg-black/60 backdrop-blur-sm"
+  >
+    <motion.div
+      initial={{ scale: 0.8, y: 50 }}
+      animate={{ scale: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="w-full max-w-7xl h-[90vh] bg-gradient-to-br from-white via-purple-50 to-pink-50 rounded-2xl shadow-2xl flex flex-col"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center gap-4">
+          <img
+  src={`https://i.pravatar.cc/60?img=${selectedTeacher.index + 10}`}
+  className="border-4 border-purple-400 rounded-full shadow-lg"
+/>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800">
+              {selectedTeacher?.name}
+            </h2>
+            <p className="text-sm text-gray-500">
+              Weekly Teaching Schedule
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={() => setSelectedTeacher(null)}
+          className="px-4 py-2 text-white bg-red-500 rounded-lg hover:bg-red-600"
+        >
+          Close
+        </button>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 p-4 overflow-y-auto">
+        {/* Legend */}
+        <div className="flex gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-green-500 rounded"></div>
+            <span className="text-sm">Lecture</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <span className="text-sm">Lab</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-purple-500 rounded"></div>
+            <span className="text-sm">Tutorial</span>
+          </div>
+        </div>
+
+        {/* Timetable */}
+        <div className="overflow-x-auto border rounded-xl">
+          <table className="w-full text-sm border border-gray-300">
+            <thead className="sticky top-0 text-white bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500">
+              <tr>
+                <th className="p-3 border">Time</th>
+                {days.map((day, index) => (
+                  <th key={day} className="p-3 border">{day}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {["09:00 - 10:30","10:00 - 11:30","11:00 - 12:30","01:00 - 02:30","02:00 - 03:30"].map((slotTime, idx) => (
+                <tr key={idx} className="text-center">
+                  <td className="font-semibold border bg-gray-50">{slotTime}</td>
+                  {days.map((day) => {
+                    const classSlot = timetableData[selectedTeacher?.name]?.find(
+                      (s) => s.day === day && s.time === slotTime
+                    );
+                    return (
+                      <td key={day} className="border p-2 h-[90px]">
+                        {classSlot ? (
+                          <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className={`${typeColors[classSlot.type]} text-white p-2 rounded-lg shadow-md`}
+                          >
+                            <p className="font-semibold">{classSlot.subject}</p>
+                            <p className="text-xs">{classSlot.class}</p>
+                            <p className="text-xs">{classSlot.room}</p>
+                            <p className="italic text-[10px]">{classSlot.type}</p>
+                          </motion.div>
+                        ) : (
+                          <p className="text-xs text-gray-400">Free</p>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bottom Stats */}
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="p-4 text-center text-white bg-green-500 rounded-xl">
+            <p className="text-xl font-bold">
+              {timetableData[selectedTeacher?.name]?.filter(t=>t.type==="Lecture").length || 0}
+            </p>
+            <p className="text-sm">Lectures</p>
+          </div>
+
+          <div className="p-4 text-center text-white bg-blue-500 rounded-xl">
+            <p className="text-xl font-bold">
+              {timetableData[selectedTeacher?.name]?.filter(t=>t.type==="Lab").length || 0}
+            </p>
+            <p className="text-sm">Labs</p>
+          </div>
+
+          <div className="p-4 text-center text-white bg-purple-500 rounded-xl">
+            <p className="text-xl font-bold">
+              {timetableData[selectedTeacher?.name]?.length || 0}
+            </p>
+            <p className="text-sm">Total Classes</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  </motion.div>
+)}
       </div>
     </div>
   );

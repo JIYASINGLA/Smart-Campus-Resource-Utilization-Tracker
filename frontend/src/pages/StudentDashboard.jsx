@@ -54,16 +54,24 @@ const notifications = [
 
 /* ---------- Main Component ---------- */
 export default function StudentDashboard() {
-  const [user, setUser] = useState({ name: "Student" });
+  const [user, setUser] = useState({ name: "Student", profilePic: "" });
 
   useEffect(() => {
     // Fetch the logged-in user from localStorage
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-    if (currentUser) setUser(currentUser);
+    const currentUser = JSON.parse(localStorage.getItem("loggedInUser")) || { name: "Student" };
+
+    // If profilePic not set, generate a consistent avatar and store in localStorage
+    if (!currentUser.profilePic) {
+      // Use ?u=name so pravatar generates same image per user
+      currentUser.profilePic = `https://i.pravatar.cc/150?u=${currentUser.name}`;
+      localStorage.setItem("loggedInUser", JSON.stringify(currentUser));
+    }
+
+    setUser(currentUser);
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
+    <div className="relative flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
       {/* Sidebar */}
       <SidebarStudent />
 
@@ -87,9 +95,9 @@ export default function StudentDashboard() {
             <div className="flex flex-col items-end">
               <span className="text-sm font-medium text-indigo-700">{user.name}</span>
               <img
-                src="https://i.pravatar.cc/40"
+                src={user.profilePic}
                 alt="profile"
-                className="border-2 border-indigo-500 rounded-full"
+                className="w-10 h-10 border-2 border-indigo-500 rounded-full"
               />
             </div>
           </div>
@@ -99,7 +107,7 @@ export default function StudentDashboard() {
         <div className="p-6">
 
           {/* Hero Section */}
-          <div className="p-6 mb-6 text-white shadow-lg bg-gradient-to-r from-indigo-600 via-dark-blue-600 to-green-500 rounded-2xl">
+          <div className="p-6 mb-6 text-white shadow-lg bg-gradient-to-r from-indigo-600 to-green-500 rounded-2xl">
             <h2 className="mb-2 text-2xl font-bold">Smart Monitoring & Optimization</h2>
             <p>Track and optimize campus resources in real time.</p>
 
@@ -120,63 +128,40 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Resource Cards */}
-          <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
-            {[
-              {
-                name: "Library",
-                status: "Available",
-                occupancy: "70%",
-                img: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f",
-              },
-              {
-                name: "Computer Lab",
-                status: "Occupied",
-                occupancy: "90%",
-                img: "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-              },
-              {
-                name: "Study Room",
-                status: "Available",
-                occupancy: "40%",
-                img: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6",
-              },
-            ].map((resource, index) => (
-              <motion.div key={index} whileHover={{ scale: 1.05 }}>
-                <Card className="overflow-hidden">
-                  <div className="relative">
-                    <img src={resource.img} className="object-cover w-full h-36" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60"></div>
-                    <h2 className="absolute font-bold text-white bottom-2 left-3">{resource.name}</h2>
-                  </div>
-                  <CardContent className="p-4">
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      resource.status === "Available"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-600"
-                    }`}>
-                      {resource.status}
-                    </span>
-
-                    <div className="mt-3">
-                      <div className="flex justify-between text-sm">
-                        <span>Occupancy</span>
-                        <span>{resource.occupancy}</span>
-                      </div>
-
-                      <div className="w-full h-2 mt-1 bg-gray-200 rounded-full">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          animate={{ width: resource.occupancy }}
-                          className="h-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          {/* Motivational Cards */}
+<div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-3">
+  {[
+    {
+      title: "Keep Learning!",
+      quote: "Education is the most powerful weapon which you can use to change the world.",
+      icon: "📚",
+      bg: "from-indigo-500 to-purple-500",
+    },
+    {
+      title: "Stay Motivated!",
+      quote: "Don't watch the clock; do what it does. Keep going.",
+      icon: "⏰",
+      bg: "from-green-400 to-teal-500",
+    },
+    {
+      title: "Believe in Yourself!",
+      quote: "Believe you can and you're halfway there.",
+      icon: "💪",
+      bg: "from-yellow-400 to-orange-500",
+    },
+  ].map((card, index) => (
+    <motion.div key={index} whileHover={{ scale: 1.05 }}>
+      <Card className={`overflow-hidden bg-gradient-to-r ${card.bg} text-white`}>
+        <CardContent className="flex flex-col items-start justify-between h-56 p-6">
+          <span className="mb-4 text-4xl">{card.icon}</span>
+          <h2 className="mb-2 text-xl font-bold">{card.title}</h2>
+          <p className="text-sm">{card.quote}</p>
+        </CardContent>
+      </Card>
+    </motion.div>
+  ))}
+</div>
+            
 
           {/* Notifications + Pie */}
           <div className="grid grid-cols-1 gap-6 mb-6 md:grid-cols-2">
@@ -192,67 +177,117 @@ export default function StudentDashboard() {
             </Card>
 
             <Card>
-              <CardContent>
-                <h2 className="mb-4 text-xl font-semibold text-indigo-700">Occupancy</h2>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie data={pieData} dataKey="value">
-                      {pieData.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+  <CardContent className="p-4">
+    <h2 className="mb-4 text-xl font-semibold text-indigo-700">Occupancy</h2>
+    <ResponsiveContainer width="100%" height={250}>
+      <PieChart>
+        <Pie
+          data={pieData}
+          dataKey="value"
+          nameKey="name"
+          innerRadius={60}    // makes it a donut chart
+          outerRadius={80}
+          startAngle={90}     // animation starting angle
+          endAngle={450}      // full circle animation
+          paddingAngle={3}    // space between slices
+          label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`} // custom label
+        >
+          {pieData.map((entry, i) => (
+            <Cell
+              key={i}
+              fill={COLORS[i]}
+              stroke="#fff"
+              strokeWidth={2}
+            />
+          ))}
+        </Pie>
+        <Tooltip
+          formatter={(value, name) => [`${value}%`, name]}
+          contentStyle={{ backgroundColor: 'rgba(255,255,255,0.9)', borderRadius: '8px', border: 'none' }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+
+    {/* Legend */}
+    <div className="flex justify-center gap-6 mt-4">
+      {pieData.map((item, index) => (
+        <div key={index} className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full" style={{ backgroundColor: COLORS[index] }}></span>
+          <span className="text-sm font-medium">{item.name}</span>
+        </div>
+      ))}
+    </div>
+  </CardContent>
+</Card>
           </div>
 
           {/* Charts Section */}
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-indigo-700">Campus Resource Statistics</h2>
-            <p className="text-sm text-gray-500">Visual representation of usage, trends, and AI predictions</p>
-          </div>
+<div className="mb-4">
+  <h2 className="text-2xl font-bold text-indigo-700">Campus Resource Statistics</h2>
+  <p className="text-sm text-gray-500">
+    Visual representation of usage and trends
+  </p>
+</div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <Card>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={usageData}>
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="usage" fill="#6366F1" />
-                </BarChart>
-              </ResponsiveContainer>
-            </Card>
+<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+  {/* Bar Chart */}
+  <Card>
+    <CardContent className="p-4">
+      <h2 className="mb-2 text-lg font-semibold text-indigo-700">Resource Usage</h2>
+      
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={usageData}>
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
+          <Bar dataKey="usage" fill="#6366F1" />
+        </BarChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
 
-            <Card>
-              <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line dataKey="students" stroke="#22C55E" strokeWidth={3} />
-                </LineChart>
-              </ResponsiveContainer>
-            </Card>
+  {/* Line Chart */}
+  <Card>
+    <CardContent className="p-4">
+      <h2 className="mb-2 text-lg font-semibold text-indigo-700">Student Trends</h2>
+      <ResponsiveContainer width="100%" height={250}>
+        <LineChart data={trendData}>
+          <CartesianGrid strokeDasharray="2 2" />
+          <XAxis dataKey="day" /> 
+          <YAxis />
+          <Tooltip />
+          <Line dataKey="students" stroke="#22C55E" strokeWidth={3} />
+        </LineChart>
+      </ResponsiveContainer>
+    </CardContent>
+  </Card>
+</div>
 
-            <Card>
-              <CardContent className="p-6">
-                <h2 className="text-xl font-semibold text-indigo-700">AI Prediction</h2>
-                <p className="mt-2">Best Time:</p>
-                <p className="text-2xl font-bold text-indigo-600">2 PM – 4 PM</p>
-                <p className="mt-2 text-green-600">Expected Occupancy: 40%</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+  </div>
+       {/* Footer */}
+<footer className="relative p-8 mt-6 overflow-hidden text-white shadow-inner bg-gradient-to-r from-blue-700 to-green-700 rounded-t-3xl">
+  {/* Decorative Blurs */}
+  <div className="absolute top-0 rounded-full left-1/4 w-28 h-28 bg-white/20 blur-3xl animate-pulse"></div>
+  <div className="absolute bottom-0 rounded-full right-1/4 w-36 h-36 bg-white/10 blur-3xl animate-pulse"></div>
 
-        {/* Footer */}
-        <div className="p-4 text-center bg-white shadow">
-          🚀 Smart Campus • React + Tailwind Dashboard
-        </div>
+  <div className="relative flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
+    
+    {/* Footer Title & Quote */}
+    <div className="flex flex-col items-center gap-2 md:items-start">
+      <h2 className="text-lg font-extrabold text-white drop-shadow-md">🎓 Smart Campus Dashboard • 2026</h2>
+      <p className="mt-1 text-sm italic text-white/90">“Keep learning, keep growing!”</p> 
+    </div>
+    {/* Motivational Tagline */}
+    <div className="mt-4 text-sm italic font-medium text-yellow-200 md:mt-0 drop-shadow-md">
+      🚀 Empowering Students • Learn • Optimize • Achieve
+    </div>
+  </div>
+
+  {/* Bottom Bar */}
+  <div className="pt-4 mt-6 text-center border-t text-s border-white/30 text-white/80">
+    © 2026 Smart Campus • Designed for Students
+  </div>
+</footer>
       </div>
     </div>
   );

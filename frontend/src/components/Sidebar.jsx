@@ -16,8 +16,8 @@ const Sidebar = () => {
     { name: "My Timetable", path: "/schedule", icon: <Calendar size={18} /> },
     { name: "Request Booking", path: "/request-booking", icon: <ClipboardList size={18} /> },
     { name: "Merge Sections", path: "/merge", icon: <Layers size={18} /> },
-    { name: "Room Availability", path: "/rooms", icon: <Building size={18} /> },
-    { name: "Labs Availability", path: "/labs", icon: <FlaskConicalIcon size={18} /> },
+    { name: "Room Availability", path: "/roomsavailability", icon: <Building size={18} /> },
+    { name: "Labs Availability", path: "/labsavailability", icon: <FlaskConicalIcon size={18} /> },
     { name: "Teacher Availability", path: "/teacher", icon: <UserCheck size={18} /> },
   ];
 

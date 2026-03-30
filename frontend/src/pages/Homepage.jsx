@@ -39,14 +39,7 @@ const HomePage = () => {
     </h1>
   </div>
         <div className="flex gap-4">
-          <motion.button
-            whileHover={{ scale: 1.05, backgroundColor: "#f3f3f3" }}
-            transition={{ duration: 0.3 }}
-            onClick={() => navigate("/signup")}
-            className="px-6 py-2 border rounded-xl"
-          >
-            Register
-          </motion.button>
+          
           <motion.button
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.3 }}

@@ -11,7 +11,7 @@ export default function LabAdmin() {
   const [equipmentFilter, setEquipmentFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
-  // Dummy lab data
+  // Initial dummy lab data
   useEffect(() => {
     setLabs([
       { id: 1, name: "Computer Lab 1", capacity: 60, available: true, type: "Computer", equipment: "PC" },
@@ -33,6 +33,17 @@ export default function LabAdmin() {
       (!expressOnly || lab.available === true)
     );
   });
+
+  // Load more labs
+  const loadMoreLabs = () => {
+    const nextId = labs.length + 1;
+    const newLabs = [
+      { id: nextId, name: `Lab ${nextId}`, capacity: 40 + nextId, available: true, type: "Computer", equipment: "PC" },
+      { id: nextId + 1, name: `Lab ${nextId + 1}`, capacity: 35 + nextId, available: false, type: "Electronics", equipment: "Oscilloscope" },
+      { id: nextId + 2, name: `Lab ${nextId + 2}`, capacity: 50 + nextId, available: true, type: "IT", equipment: "Cisco Kit" },
+    ];
+    setLabs([...labs, ...newLabs]);
+  };
 
   return (
     <div className="flex flex-col h-screen bg-gray-100">
@@ -127,9 +138,9 @@ export default function LabAdmin() {
                   className="p-4 bg-white shadow rounded-2xl"
                 >
                   <img
-                src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg"
-                className="object-cover w-full h-32 mb-3 rounded-lg"
-              />
+                    src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg"
+                    className="object-cover w-full h-32 mb-3 rounded-lg"
+                  />
                   <h2 className="text-xl font-bold">{lab.name}</h2>
 
                   <p className={lab.available ? "text-green-500" : "text-red-500"}>
@@ -162,10 +173,18 @@ export default function LabAdmin() {
               );
             })}
           </div>
+
+          {/* Load More Labs Button */}
+          <div className="mt-8 text-center">
+            <button
+              onClick={loadMoreLabs}
+              className="px-6 py-2 transition bg-white border rounded shadow hover:bg-gray-100"
+            >
+              Load More Labs
+            </button>
+          </div>
         </div>
       </div>
-
-      
     </div>
   );
 }

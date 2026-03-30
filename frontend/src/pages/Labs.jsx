@@ -20,6 +20,12 @@ export default function Labs() {
       { id: 4, name: "Networking Lab", systems: 50, available: true, department: "IT", software: "Cisco" },
       { id: 5, name: "Programming Lab", systems: 70, available: true, department: "CSE", software: "C++" },
       { id: 6, name: "Microprocessor Lab", systems: 30, available: false, department: "ECE", software: "Assembly" },
+      { id: 7, name: "Data Science Lab", systems: 45, available: true, department: "CSE", software: "Python" },
+      { id: 8, name: "Robotics Lab", systems: 25, available: true, department: "ECE", software: "MATLAB" },
+      { id: 9, name: "Cybersecurity Lab", systems: 40, available: false, department: "IT", software: "Linux" },
+      { id: 10, name: "Cloud Computing Lab", systems: 55, available: true, department: "CSE", software: "AWS" },
+      { id: 11, name: "Embedded Systems Lab", systems: 35, available: true, department: "ECE", software: "C" },
+      { id: 12, name: "Mobile App Lab", systems: 50, available: true, department: "IT", software: "Flutter" },
     ]);
   }, []);
 
@@ -44,19 +50,10 @@ export default function Labs() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-blue-700">Lab Availability</h1>
-            <p className="text-gray-500">Check & book labs instantly</p>
+            <p className="text-gray-500">View labs and check availability</p>
           </div>
 
-          <button
-            onClick={() => setExpressOnly(!expressOnly)}
-            className={`px-4 py-2 rounded-lg text-white shadow ${
-              expressOnly
-                ? "bg-gradient-to-r from-blue-500 to-green-400"
-                : "bg-gray-400"
-            }`}
-          >
-            ⚡ Express Booking
-          </button>
+          
         </div>
 
         {/* FILTERS */}
@@ -87,6 +84,7 @@ export default function Labs() {
               onChange={(e) => setSystemFilter(e.target.value)}
             >
               <option value="All">Systems</option>
+              <option value="25">25+</option>
               <option value="30">30+</option>
               <option value="50">50+</option>
               <option value="70">70+</option>
@@ -102,6 +100,11 @@ export default function Labs() {
               <option value="MATLAB">MATLAB</option>
               <option value="Cisco">Cisco</option>
               <option value="C++">C++</option>
+              <option value="C">C</option>
+              <option value="AWS">AWS</option>
+              <option value="Flutter">Flutter</option>
+              <option value="Linux">Linux</option>
+              <option value="Assembly">Assembly</option>
             </select>
           </div>
         </div>
@@ -163,11 +166,7 @@ export default function Labs() {
                 Next Free: 3:00 PM
               </p>
 
-              <button
-                className="w-full py-2 mt-3 text-white transition rounded-lg bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500"
-              >
-                Book Lab →
-              </button>
+              {/* Removed Book Button for Students */}
             </motion.div>
           ))}
         </div>

@@ -14,32 +14,39 @@ export default function Login() {
     admin: { label: "Admin", redirect: "/admindashboard", gradient: "from-yellow-400 to-red-400" },
   };
 
-  const handleLogin = () => {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+  const users = [
+    // Example Students
+    { email: "student1@campus.com", password: "pass123", role: "student", name: "Student One", pic: "https://i.pravatar.cc/150?img=1" },
+    { email: "student2@campus.com", password: "pass123", role: "student", name: "Student Two", pic: "https://i.pravatar.cc/150?img=2" },
+    // Example Faculties
+    { email: "faculty1@campus.com", password: "pass123", role: "faculty", name: "Faculty One", pic: "https://i.pravatar.cc/150?img=10" },
+    { email: "sita@campus.com", password: "sita123", role: "faculty", name: "Sita Rana", pic: "https://i.pravatar.cc/150?img=10"},
+    { email: "faculty2@campus.com", password: "pass123", role: "faculty", name: "Faculty Two", pic: "https://i.pravatar.cc/150?img=11" },
+    // Admin
+    { email: "admin@campus.com", password: "admin123", role: "admin", name: "Admin", pic: "https://i.pravatar.cc/150?img=20" },
+  ];
 
-    // Check if email exists
+  const handleLogin = () => {
     const user = users.find(u => u.email === form.email);
 
     if (!user) {
-      setError("⚠️ No user found. Please signup first!");
+      setError("⚠️ No account found. Contact admin.");
       return;
     }
 
-    // Check password
     if (user.password !== form.password) {
       setError("⚠️ Wrong password!");
       return;
     }
 
-    // Check role
     if (user.role !== role) {
-      setError(`⚠️ This user is registered as ${user.role}. Please select the correct role.`);
+      setError(`⚠️ Registered as ${user.role}. Select correct role.`);
       return;
     }
 
-    // ✅ Successful login
+    localStorage.setItem("currentUser", JSON.stringify(user));
     setError("");
-    alert(`✅ Welcome ${user.name}! Redirecting to ${roleConfig[role].label} Dashboard.`);
+    alert(`✅ Welcome ${user.name}! Redirecting...`);
     navigate(roleConfig[role].redirect);
   };
 
@@ -48,7 +55,7 @@ export default function Login() {
       <div className="w-[400px] bg-white rounded-lg shadow-lg p-6">
         <div className={`bg-gradient-to-r ${roleConfig[role].gradient} text-white p-4 rounded-t-lg text-center`}>
           <h2 className="text-lg font-semibold">Login to Portal</h2>
-          <p className="text-sm opacity-80">Choose your role to continue</p>
+          <p className="text-sm opacity-80">Select role to continue</p>
         </div>
 
         {/* Role Switch */}
@@ -71,7 +78,7 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Email */}
+        {/* Email & Password */}
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium">Email</label>
           <input
@@ -82,8 +89,6 @@ export default function Login() {
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
         </div>
-
-        {/* Password */}
         <div className="mb-4">
           <label className="block mb-1 text-sm font-medium">Password</label>
           <input
@@ -95,7 +100,6 @@ export default function Login() {
           />
         </div>
 
-        {/* Login Button */}
         <button
           onClick={handleLogin}
           className={`w-full py-2 text-white rounded bg-gradient-to-r ${roleConfig[role].gradient} hover:opacity-90 transition`}
@@ -104,12 +108,7 @@ export default function Login() {
         </button>
 
         <div className="mt-4 text-xs text-center text-gray-500">
-          <p>
-            Don't have an account?{" "}
-            <span className="font-semibold text-indigo-500 cursor-pointer hover:underline" onClick={() => navigate("/signup")}>
-              Register here
-            </span>
-          </p>
+         Accounts are provided by admin. Contact admin if you don’t have credentials.
         </div>
       </div>
     </div>

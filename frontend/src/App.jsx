@@ -108,7 +108,7 @@ function App() {
       />
 
       <Route
-        path="/labs"
+        path="/labsavailability"
         element={
           <MainLayout>
             <LabAvailability />
@@ -117,7 +117,7 @@ function App() {
       />
 
       <Route
-        path="/rooms"
+        path="/roomsavailability"
         element={
           <MainLayout>
             <RoomAvailability />

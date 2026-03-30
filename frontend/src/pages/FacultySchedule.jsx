@@ -53,20 +53,40 @@ const notifications = [
 const FacultySchedule = () => {
   const [filter, setFilter] = React.useState("All");
   const [notes, setNotes] = React.useState("");
+  const [facultyName, setFacultyName] = React.useState("Faculty");
 
-  /* Load Notes */
-  React.useEffect(() => {
-    const savedNotes = localStorage.getItem("teacherNotes");
-    if (savedNotes) {
-      setNotes(savedNotes);
-    }
-  }, []);
+React.useEffect(() => {
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+
+  if (user) {
+    setFacultyName(user.name);
+  }
+
+  const savedNotes = localStorage.getItem("teacherNotes");
+  if (savedNotes) setNotes(savedNotes);
+}, []);
 
   /* Save Notes */
   const saveNotes = () => {
     localStorage.setItem("teacherNotes", notes);
     alert("Notes Saved Successfully!");
   };
+
+  /* Greeting Function */
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
+
+  /* Current Date */
+  const todayDate = new Date().toLocaleDateString("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 
   /* Filter Logic */
   const filteredSchedule = todaySchedule.filter((cls) => {
@@ -77,7 +97,7 @@ const FacultySchedule = () => {
 
   return (
     <div className="flex">
-      
+
 
       {/* BACKGROUND */}
       <div
@@ -98,16 +118,10 @@ const FacultySchedule = () => {
           >
             <div>
               <h1 className="text-2xl font-bold">
-                Good morning, Prof. Miller 👋
+                {getGreeting()}, {facultyName} 👋
               </h1>
-              <p className="text-gray-500">
-                Wednesday, Oct 23rd, 2024
-              </p>
+              <p className="text-gray-500">{todayDate}</p>
             </div>
-
-            <button className="px-4 py-2 bg-white border rounded-lg shadow">
-              Contact Admin
-            </button>
           </motion.div>
 
           {/* KPI CARDS */}
@@ -154,11 +168,8 @@ const FacultySchedule = () => {
               {/* TODAY TIMETABLE */}
               <div className="p-6 bg-white shadow rounded-2xl">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">
-                    Today’s Timetable
-                  </h2>
+                  <h2 className="text-lg font-semibold">Today’s Timetable</h2>
 
-                  {/* FILTER BUTTONS */}
                   <div className="flex gap-2">
                     {["All", "Completed", "Ongoing", "Upcoming", "Next"].map((btn) => (
                       <button
@@ -177,20 +188,15 @@ const FacultySchedule = () => {
                 </div>
 
                 <div className="space-y-6">
-                  {filteredSchedule.map((cls, i) => (
+                  {filteredSchedule.map((cls) => (
                     <motion.div
-                      key={i}
+                      key={cls.time}
                       whileHover={{ scale: 1.02 }}
-                      initial={{ opacity: 0, x: -30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.2 }}
                       className="flex gap-4"
                     >
                       <div className="flex flex-col items-center">
                         <div className="w-3 h-3 bg-indigo-500 rounded-full"></div>
-                        {i !== filteredSchedule.length - 1 && (
-                          <div className="w-[2px] h-16 bg-gray-300"></div>
-                        )}
+                        <div className="w-[2px] h-16 bg-gray-300"></div>
                       </div>
 
                       <div className="flex-1 p-4 border rounded-xl">
@@ -217,9 +223,7 @@ const FacultySchedule = () => {
 
               {/* TEACHER NOTES */}
               <div className="p-6 bg-white shadow rounded-2xl">
-                <h2 className="mb-3 text-lg font-semibold">
-                  Teacher Notes
-                </h2>
+                <h2 className="mb-3 text-lg font-semibold">Teacher Notes</h2>
 
                 <textarea
                   value={notes}
@@ -278,7 +282,6 @@ const FacultySchedule = () => {
 
             </div>
           </div>
-          
 
           {/* FOOTER */}
           <div className="mt-10 text-center text-gray-500">

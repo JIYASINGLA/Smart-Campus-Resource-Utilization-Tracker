@@ -1,8 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut, Calendar, Users, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer,
@@ -37,48 +36,85 @@ const classesData = [
   { week: "Week 4", classes: 12 },
 ];
 
-const COLORS = ["#ef4444", "#f97316", "#facc15"];
+const todaySchedule = [
+  { time: "08:00 AM", subject: "Mathematics", room: "101" },
+  { time: "09:30 AM", subject: "Physics", room: "Lab 1" },
+  { time: "11:00 AM", subject: "Chemistry", room: "Lab 2" },
+  { time: "01:00 PM", subject: "English", room: "103" },
+];
+
+const COLORS = ["#ec4899", "#f472b6", "#a78bfa"];
 
 /* ---------------- HEADER ---------------- */
-const Header = () => (
-  <div className="flex items-center justify-between p-5 mb-6 transition-all duration-300 border shadow-xl bg-white/60 backdrop-blur-xl border-white/40 rounded-2xl hover:shadow-2xl">
-    <div>
-      <h1 className="text-2xl font-bold text-gray-800">Teacher Dashboard</h1>
-      <p className="text-sm text-gray-500">Welcome back, Manage your class</p>
-    </div>
+const Header = () => {
+  const [user, setUser] = useState(null);
 
-    <div className="flex items-center gap-4">
-      <Bell className="transition cursor-pointer hover:scale-110" />
-      <img
-        src="https://i.pravatar.cc/40"
-        className="border-2 border-red-500 rounded-full"
-      />
-      <LogOut className="text-red-500 transition cursor-pointer hover:scale-110" />
-    </div>
-  </div>
-);
-
-/* ---------------- DETAIL CARD ---------------- */
-const DetailCard = ({ title, count, page }) => {
-  const navigate = useNavigate();
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (storedUser) setUser(storedUser);
+  }, []);
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className="p-6 text-white shadow-xl rounded-2xl bg-gradient-to-r from-red-500 to-orange-400 hover:shadow-[0_20px_50px_rgba(255,0,0,0.4)] transition-all duration-300"
-    >
-      <h2 className="text-3xl font-bold">{count}</h2>
-      <p className="mb-4">{title}</p>
+    <div className="flex items-center justify-between p-3 mb-4 border shadow-md bg-white/70 backdrop-blur-lg border-white/30 rounded-xl">
+      
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">
+            Teacher Dashboard
+          </h1>
+          <p className="text-gray-500 text-l">
+            Welcome back, {user?.name}
+          </p>
+        </div>
+      </div>
 
-      <button
-        onClick={() => navigate(page)}
-        className="px-4 py-2 text-red-500 transition bg-white rounded-lg hover:bg-gray-100"
-      >
-        View Details
-      </button>
+      <div className="flex items-center gap-3">
+        <div className="flex flex-col items-center">
+          <img
+            src={user?.pic}
+            className="border-2 border-pink-500 rounded-full w-15 h-15"
+            alt="Teacher Avatar"
+          />
+          <span className="text-[10px] text-gray-700">
+            {user?.name}
+          </span>
+        </div>
+      </div>
+
+    </div>
+  );
+};
+/* ---------------- DETAIL CARD ---------------- */
+const DetailCard = ({ title, count, subtitle, image }) => {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.05, y: -5 }}
+      className="relative overflow-hidden text-white shadow-xl rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500"
+    >
+      {image && <img src={image} className="absolute inset-0 object-cover w-full h-full opacity-30" />}
+      <div className="relative p-6">
+        <h2 className="text-3xl font-bold">{count}</h2>
+        <p className="mb-2">{title}</p>
+        {subtitle && <p className="text-sm italic text-white/80">{subtitle}</p>}
+      </div>
     </motion.div>
   );
 };
+
+/* ---------------- SCHEDULE CARD ---------------- */
+const ScheduleCard = ({ time, subject, room }) => (
+  <motion.div
+    whileHover={{ scale: 1.03 }}
+    className="flex items-center justify-between p-3 mb-2 border rounded-lg shadow-md bg-white/70 backdrop-blur-md border-white/30"
+  >
+    <div className="flex items-center gap-2">
+      <Calendar className="w-5 h-5 text-pink-500" />
+      <span className="font-semibold text-gray-800">{time}</span>
+    </div>
+    <span className="font-medium text-gray-700">{subject}</span>
+    <span className="text-gray-500">{room}</span>
+  </motion.div>
+);
 
 /* ---------------- DASHBOARD ---------------- */
 const TeacherDashboard = () => {
@@ -86,9 +122,9 @@ const TeacherDashboard = () => {
     <div className="flex">
       <Sidebar />
 
-      <div className="relative flex-1 min-h-screen p-8 overflow-hidden bg-gradient-to-br from-pink-50 via-white to-orange-50">
+      <div className="relative flex-1 min-h-screen p-8 overflow-hidden bg-gradient-to-br from-pink-50 via-white to-purple-50">
 
-        {/* Animated Blobs */}
+        {/* Animated Background Blobs */}
         <motion.div
           animate={{ x: [0, 50, 0], y: [0, -50, 0] }}
           transition={{ duration: 10, repeat: Infinity }}
@@ -97,10 +133,9 @@ const TeacherDashboard = () => {
         <motion.div
           animate={{ x: [0, -50, 0], y: [0, 50, 0] }}
           transition={{ duration: 12, repeat: Infinity }}
-          className="absolute bg-orange-300 rounded-full w-72 h-72 opacity-30 blur-3xl bottom-10 right-10"
+          className="absolute bg-purple-300 rounded-full w-72 h-72 opacity-30 blur-3xl bottom-10 right-10"
         />
 
-        {/* Main Content */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -108,241 +143,177 @@ const TeacherDashboard = () => {
         >
           <Header />
 
-          {/* Welcome */}
-          <div className="p-6 mb-6 text-white shadow-xl rounded-2xl bg-gradient-to-r from-red-500 to-orange-400">
-            <h2 className="text-xl font-bold">Welcome Teacher 👋</h2>
-            <p>Here is your today’s analytics and campus report</p>
-          </div>
+          {/* KPI Cards - Pink & Purple Gradient */}
+<div className="p-6 mb-6 text-white shadow-lg bg-gradient-to-r from-pink-500 to-purple-600 rounded-2xl">
+  <h2 className="mb-2 text-2xl font-bold">Smart Monitoring & Optimization</h2>
+  <p>Track and optimize campus resources in real time.</p>
 
-          {/* KPI */}
-          <div className="grid grid-cols-2 gap-6 mb-6 md:grid-cols-4">
-            {["Rooms", "Labs", "Teachers", "Students"].map((item, i) => (
-              <div
-                key={i}
-                className="p-5 text-white transition shadow-xl rounded-2xl bg-gradient-to-r from-red-500 to-orange-400 hover:scale-105 hover:shadow-[0_20px_50px_rgba(255,0,0,0.4)] duration-300"
-              >
-                <h2 className="text-2xl font-bold">50</h2>
-                <p>{item}</p>
-              </div>
-            ))}
-          </div>
+  <div className="grid grid-cols-2 gap-4 mt-4 md:grid-cols-4">
+    {[
+      ["50", "Rooms", "78% Utilized"],
+      ["20", "Labs", "65% Weekly"],
+      ["35", "Teachers", "82% Active"],
+      ["1200", "Students", "Active Users"],
+    ].map((item, i) => (
+      <motion.div
+        key={i}
+        whileHover={{ scale: 1.05, y: -5 }}
+        className="relative p-4 overflow-hidden text-center shadow-xl bg-white/70 rounded-xl backdrop-blur-lg"
+      >
+        {/* Background Image with blur */}
+        {item[3] && (
+          <img
+            src={item[3]}
+            className="absolute inset-0 object-cover w-full h-full opacity-30 rounded-xl"
+            alt={item[1]}
+          />
+        )}
 
-          {/* Quote */}
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            className="p-6 mb-6 text-white shadow-xl rounded-2xl bg-gradient-to-r from-pink-500 to-red-400"
-          >
-            <h2 className="text-lg font-semibold">Teacher Inspiration</h2>
-            <p className="italic">
-              "Great teachers inspire, guide, and shape the future."
-            </p>
-          </motion.div>
+        {/* Overlay gradient for glass effect */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-pink-200/30 via-purple-200/20 to-pink-100/20 rounded-xl"></div>
 
-          {/* Graphs */}
-          <div className="grid gap-6 mb-6 md:grid-cols-4">
-            {[
-              {
-                title: "Weekly Students",
-                chart: (
-                  <BarChart data={attendanceData}>
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="students" fill="#ef4444" />
-                  </BarChart>
-                ),
-              },
-              {
-                title: "Performance",
-                chart: (
-                  <LineChart data={performanceData}>
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line dataKey="score" stroke="#dc2626" />
-                  </LineChart>
-                ),
-              },
-              {
-                title: "Resources",
-                chart: (
-                  <PieChart>
-                    <Pie data={resourceUsage} dataKey="value">
-                      {resourceUsage.map((_, i) => (
-                        <Cell key={i} fill={COLORS[i]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                ),
-              },
-              {
-                title: "Weekly Classes",
-                chart: (
-                  <LineChart data={classesData}>
-                    <XAxis dataKey="week" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line dataKey="classes" stroke="#ef4444" />
-                  </LineChart>
-                ),
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="p-4 transition border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-2xl"
-              >
-                <h3 className="mb-2">{item.title}</h3>
-                <ResponsiveContainer width="100%" height={200}>
-                  {item.chart}
-                </ResponsiveContainer>
-              </div>
-            ))}
-          </div>
+        <h3 className="relative text-2xl font-bold text-gray-800">{item[0]}</h3>
+        <p className="relative text-gray-700">{item[1]}</p>
+        <p className="relative text-sm text-purple-600">{item[2]}</p>
+      </motion.div>
+    ))}
+  </div>
+</div>
 
-          {/* Resource Cards (Library, Lab, Study Room) */}
-          <div className="grid gap-6 mb-6 md:grid-cols-3">
-            {[
-              {
-                name: "Library",
-                status: "Available",
-                usage: 70,
-                image: "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f",
-              },
-              {
-                name: "Computer Lab",
-                status: "Occupied",
-                usage: 90,
-                image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c",
-              },
-              {
-                name: "Study Room",
-                status: "Available",
-                usage: 40,
-                image: "https://images.unsplash.com/photo-1516979187457-637abb4f9353",
-              },
-            ].map((res, i) => (
-              <motion.div
-                key={i}
-                whileHover={{ scale: 1.05 }}
-                className="overflow-hidden transition border shadow-xl bg-white/70 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-[0_20px_40px_rgba(0,0,0,0.2)] hover:-translate-y-1 duration-300"
-              >
-                <div className="relative h-40">
-                  <img src={res.image} className="object-cover w-full h-full" />
-                  <div className="absolute text-lg font-semibold text-white bottom-2 left-3">
-                    {res.name}
-                  </div>
-                </div>
+    
 
-                <div className="p-4">
-                  <span
-                    className={`px-3 py-1 text-xs rounded-full ${
-                      res.status === "Available"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-red-100 text-red-500"
-                    }`}
-                  >
-                    {res.status}
-                  </span>
+          {/* Graphs Section */}
+<div className="grid gap-6 mb-6 md:grid-cols-2">
 
-                  <p className="mt-2 text-sm text-gray-500">Usage</p>
+  {/* Weekly Students Histogram */}
+  <div className="p-4 transition border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-2xl">
+    <div className="flex items-center gap-2 mb-2">
+      <Users className="w-5 h-5 text-pink-500" />
+      <h3 className="font-semibold text-gray-800">Weekly Student Attendance</h3>
+    </div>
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={attendanceData}>
+        <XAxis dataKey="day" tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <YAxis tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <Tooltip 
+          contentStyle={{ backgroundColor: "#f3f4f6", borderRadius: 10, border: "none" }}
+          itemStyle={{ color: "#ec4899" }}
+        />
+        <Bar dataKey="students" fill="url(#gradStudents)" barSize={30} radius={[10,10,0,0]} />
+        <defs>
+          <linearGradient id="gradStudents" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f472b6" stopOpacity={0.8}/>
+            <stop offset="100%" stopColor="#ec4899" stopOpacity={0.8}/>
+          </linearGradient>
+        </defs>
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 
-                  <div className="w-full h-2 bg-gray-200 rounded-full">
-                    <div
-                      className="h-2 rounded-full bg-gradient-to-r from-red-500 to-orange-400"
-                      style={{ width: `${res.usage}%` }}
-                    ></div>
-                  </div>
-                  <p className="mt-1 text-sm">{res.usage}%</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+  {/* Resource Usage */}
+  <div className="p-4 transition border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-2xl">
+    <div className="flex items-center gap-2 mb-2">
+      <BookOpen className="w-5 h-5 text-purple-500" />
+      <h3 className="font-semibold text-gray-800">Resource Utilization</h3>
+    </div>
+    <ResponsiveContainer width="100%" height={250}>
+      <PieChart>
+        <Pie
+          data={resourceUsage}
+          dataKey="value"
+          nameKey="name"
+          outerRadius={80}
+          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+        >
+          {resourceUsage.map((_, i) => (
+            <Cell key={i} fill={COLORS[i]} />
+          ))}
+        </Pie>
+        <Tooltip 
+          contentStyle={{ backgroundColor: "#f3f4f6", borderRadius: 10, border: "none" }}
+          itemStyle={{ color: "#a78bfa" }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
 
-          {/* Rooms, Labs, Teachers Cards with View Details */}
-          <div className="grid gap-6 mb-6 md:grid-cols-3">
-            <DetailCard title="Total Rooms" count="50" page="/roomavailability" />
-            <DetailCard title="Total Labs" count="20" page="/labavailability" />
-            <DetailCard title="Total Teachers" count="35" page="/teacheravailability" />
-          </div>
+  {/* Monthly Performance */}
+  <div className="p-4 transition border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-2xl">
+    <div className="flex items-center gap-2 mb-2">
+      <Calendar className="w-5 h-5 text-green-500" />
+      <h3 className="font-semibold text-gray-800">Monthly Performance</h3>
+    </div>
+    <ResponsiveContainer width="100%" height={250}>
+      <LineChart data={performanceData}>
+        <XAxis dataKey="month" tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <YAxis tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <Tooltip 
+          contentStyle={{ backgroundColor: "#f3f4f6", borderRadius: 10, border: "none" }}
+          itemStyle={{ color: "#a855f7" }}
+        />
+        <Line 
+          dataKey="score" 
+          stroke="url(#gradPerformance)" 
+          strokeWidth={3} 
+          dot={{ r: 5, strokeWidth: 2, fill: '#a855f7' }}
+        />
+        <defs>
+          <linearGradient id="gradPerformance" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#a855f7"/>
+            <stop offset="100%" stopColor="#f472b6"/>
+          </linearGradient>
+        </defs>
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
 
-          {/* Tables Section */}
-          <div className="grid gap-6 md:grid-cols-2">
+  {/* Weekly Classes */}
+  <div className="p-4 transition border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl hover:shadow-2xl">
+    <div className="flex items-center gap-2 mb-2">
+      <Calendar className="w-5 h-5 text-blue-500" />
+      <h3 className="font-semibold text-gray-800">Weekly Classes Scheduled</h3>
+    </div>
+    <ResponsiveContainer width="100%" height={250}>
+      <LineChart data={classesData}>
+        <XAxis dataKey="week" tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <YAxis tick={{ fill: "#6b7280", fontSize: 13 }} />
+        <Tooltip 
+          contentStyle={{ backgroundColor: "#f3f4f6", borderRadius: 10, border: "none" }}
+          itemStyle={{ color: "#f472b6" }}
+        />
+        <Line 
+          dataKey="classes" 
+          stroke="url(#gradClasses)" 
+          strokeWidth={3} 
+          dot={{ r: 5, strokeWidth: 2, fill: '#f472b6' }}
+        />
+        <defs>
+          <linearGradient id="gradClasses" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f472b6"/>
+            <stop offset="100%" stopColor="#ec4899"/>
+          </linearGradient>
+        </defs>
+      </LineChart>
+    </ResponsiveContainer>
+  </div>
 
-            {/* Recent Classes */}
-            <div className="p-6 border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl">
-              <h2 className="mb-4 text-lg font-semibold">Recent Classes</h2>
-
-              <table className="w-full text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="p-3">Room</th>
-                    <th className="p-3">Subject</th>
-                    <th className="p-3">Time</th>
-                    <th className="p-3">Students</th>
-                    <th className="p-3">Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {[
-                    ["Room 101", "Data Structures", "09:00 AM", "60", "Completed"],
-                    ["Room 170", "Operating System", "11:00 AM", "55", "Ongoing"],
-                    ["Lab 3", "DBMS Lab", "02:00 PM", "45", "Upcoming"],
-                  ].map((row, i) => (
-                    <motion.tr
-                      key={i}
-                      whileHover={{ scale: 1.01 }}
-                      className="text-center transition duration-200 border-b hover:bg-gray-50 hover:shadow-md"
-                    >
-                      <td className="p-3">{row[0]}</td>
-                      <td className="p-3">{row[1]}</td>
-                      <td className="p-3">{row[2]}</td>
-                      <td className="p-3">{row[3]}</td>
-                      <td
-                        className={`p-3 font-medium ${
-                          row[4] === "Completed"
-                            ? "text-green-600"
-                            : row[4] === "Ongoing"
-                            ? "text-blue-600"
-                            : "text-orange-500"
-                        }`}
-                      >
-                        {row[4]}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Timetable */}
-            <div className="p-6 border shadow-xl bg-white/60 backdrop-blur-lg border-white/40 rounded-2xl">
-              <h2 className="mb-4 text-lg font-semibold">Today's Timetable</h2>
-
-              <ul className="space-y-3">
-                {[
-                  "Math — 10:00 AM — Room 201",
-                  "Data Structures — 12:00 PM — Room 170",
-                  "DBMS Lab — 2:00 PM — Lab 3",
-                ].map((item, i) => (
-                  <li
-                    key={i}
-                    className="p-3 transition border shadow bg-white/70 backdrop-blur-md border-white/40 rounded-xl hover:scale-105"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
+</div>
 
           {/* Footer */}
-          <div className="relative mt-10 text-center text-gray-500">
-            <div className="absolute w-40 h-1 left-1/2 -top-4 bg-gradient-to-r from-red-500 to-orange-400 blur-sm"></div>
-            <p>Smart Campus Management System</p>
-            <p>Teacher Dashboard © 2026</p>
-          </div>
+          <footer className="relative p-6 mt-10 overflow-hidden text-white shadow-inner bg-gradient-to-r from-pink-500 to-purple-500 rounded-t-3xl">
+            <div className="flex flex-col items-center justify-between gap-4 text-center md:flex-row md:text-left">
+              <div>
+                <h2 className="text-lg font-bold">📚 Teacher Dashboard • 2026</h2>
+                <p className="mt-1 text-sm italic">“Educate, Inspire, and Empower.”</p>
+              </div>
+              <div className="text-sm italic text-white/80 md:mt-0 drop-shadow-md">
+                🚀 Monitoring Classes • Attendance • Resource Usage
+              </div>
+            </div>
+            <div className="pt-4 mt-4 text-xs text-center border-t border-white/30 text-white/80">
+              © 2026 Smart Campus • Designed for Teachers
+            </div>
+          </footer>
         </motion.div>
       </div>
     </div>

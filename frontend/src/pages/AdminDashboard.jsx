@@ -4,6 +4,9 @@ import { motion } from "framer-motion";
 import { Users, Building, BookOpen, Bell } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, BarChart, Bar } from "recharts";
 
+// Replace this with actual logged-in user's email
+const userName = "admin@campusconnect.com";
+
 // Existing stats & requests
 const stats = [
   { title: "Total Departments", value: 14, icon: <Building size={28} />, color: "from-indigo-500 to-purple-600" },
@@ -24,10 +27,12 @@ const requests = [
   { avatar: "https://i.pravatar.cc/40?img=3", name: "Dr. Grace Hopper", resource: "Lab 110", schedule: "Oct 25, 09:00 AM", reason: "Compiler Construction Lab", status: "Pending" },
   { avatar: "https://i.pravatar.cc/40?img=4", name: "Steve Wozniak", resource: "Room 402", schedule: "Oct 25, 04:30 PM", reason: "Hardware Hacking Club", status: "Pending" },
   { avatar: "https://i.pravatar.cc/40?img=5", name: "Margaret Hamilton", resource: "Lab 205", schedule: "Oct 26, 11:15 AM", reason: "Software Engineering Project", status: "Urgent" },
+  { avatar: "https://i.pravatar.cc/40?img=1", name: "Dr. Alan Turing", resource: "Lab 302", schedule: "Oct 24, 10:00 AM", reason: "Advanced Robotics Workshop", status: "Urgent" },
+  { avatar: "https://i.pravatar.cc/40?img=2", name: "Prof. Ada Lovelace", resource: "Room 105", schedule: "Oct 24, 02:00 PM", reason: "Algorithm Design Seminar", status: "Pending" },
   { avatar: "https://i.pravatar.cc/40?img=3", name: "Dr. Grace Hopper", resource: "Lab 110", schedule: "Oct 25, 09:00 AM", reason: "Compiler Construction Lab", status: "Pending" },
-  { avatar: "https://i.pravatar.cc/40?img=4", name: "Steve Wozniak", resource: "Room 402", schedule: "Oct 25, 04:30 PM", reason: "Hardware Hacking Club", status: "Pending" },
-  { avatar: "https://i.pravatar.cc/40?img=5", name: "Margaret Hamilton", resource: "Lab 205", schedule: "Oct 26, 11:15 AM", reason: "Software Engineering Project", status: "Urgent" },
+  
 ];
+
 
 // Existing Line chart data
 const utilizationData = [
@@ -59,32 +64,31 @@ export default function AdminDashboard() {
   return (
     <div className="flex h-screen bg-gray-50">
       <SidebarAdmin />
-      
 
       <div className="flex-1 px-8 py-6 overflow-y-auto bg-gray-50">
-        {/* Header */}
-        <div className="flex flex-col flex-5">
-          <header className="sticky top-0 z-20 flex items-center justify-between px-8 py-4 bg-white shadow-md">
-            <h1 className="text-2xl font-bold text-indigo-600">CampusConnect</h1>
-            <div className="flex items-center gap-3">
-              <p className="font-medium text-gray-700">Admin</p>
-              <img
-                src="https://i.pravatar.cc/40?img=12"
-                alt="User Avatar"
-                className="w-10 h-10 border-2 border-indigo-500 rounded-full"
-              />
-            </div>
-          </header>
-        </div>
 
-        {/* Existing Dashboard Header */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
+        {/* Dashboard Header with Avatar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center justify-between mb-8"
+        >
+          {/* Left: Dashboard Title */}
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-                Admin Dashboard</h1>
-            <p className="text-gray-500">System oversight and resource orchestration for Fall 2026 Semester</p>
+            <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
           </div>
-         
+
+          {/* Right: Avatar + Username */}
+          <div className="flex items-center gap-3">
+            <img
+              src={`https://i.pravatar.cc/50?u=${userName.split("@")[0]}`}
+              className="w-12 h-12 border-2 border-pink-500 rounded-full"
+              alt="User Avatar"
+            />
+            <span className="text-sm font-medium text-gray-700">
+              {userName.split("@")[0]}
+            </span>
+          </div>
         </motion.div>
 
         {/* Stats Cards */}
@@ -205,33 +209,81 @@ export default function AdminDashboard() {
           </motion.div>
         </div>
 
-        {/* Footer + Banner + Effects */}
-<div className="mt-12">
-  {/* Optional Banner / Announcement */}
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="relative flex items-center justify-between p-6 mb-8 text-white shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl"
-  >
-    <div>
-      <h3 className="text-xl font-bold">Campus Tip of the Day</h3>
-      <p className="mt-1 text-sm">Remember to submit room requests at least 24 hours in advance to ensure availability.</p>
-    </div>
-    <img src="https://i.ibb.co/4pDNDk1/campus-banner.png" alt="Campus" className="object-cover w-24 h-24 rounded-full" />
-  </motion.div>
+        {/* Footer + Banner */}
+        <div className="mt-12">
+          {/* Optional Banner / Announcement */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative flex items-center justify-between p-6 mb-8 text-white shadow-lg bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl"
+          >
+            <div>
+              <h3 className="text-xl font-bold">Campus Tip of the Day</h3>
+              <p className="mt-1 text-sm">Remember to submit room requests at least 24 hours in advance to ensure availability.</p>
+            </div>
+            <img src="https://i.ibb.co/4pDNDk1/campus-banner.png" alt="Campus" className="object-cover w-24 h-24 rounded-full" />
+          </motion.div>
 
-  {/* Footer */}
-  <footer className="p-6 mt-12 text-gray-200 bg-gray-800 shadow-inner rounded-2xl">
-    <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-      <p className="text-sm">&copy; 2026 CampusConnect. All rights reserved.</p>
-      <div className="flex gap-4 text-sm">
-        <a href="#" className="transition hover:text-white">Privacy Policy</a>
-        <a href="#" className="transition hover:text-white">Terms of Service</a>
-        <a href="#" className="transition hover:text-white">Help Center</a>
-      </div>
-    </div>
-  </footer>
-</div>
+          {/* Footer */}
+          <footer className="p-8 mt-12 text-gray-300 bg-gray-900 shadow-inner rounded-2xl">
+            <div className="grid grid-cols-1 gap-8 mx-auto max-w-7xl md:grid-cols-4">
+              {/* Quick Links */}
+              <div>
+                <h4 className="mb-4 font-semibold text-white">Quick Links</h4>
+                <ul className="space-y-2">
+                  <li><a href="#" className="transition hover:text-white">Dashboard</a></li>
+                  <li><a href="#" className="transition hover:text-white">Rooms</a></li>
+                  <li><a href="#" className="transition hover:text-white">Labs</a></li>
+                  <li><a href="#" className="transition hover:text-white">Requests</a></li>
+                </ul>
+              </div>
+
+              {/* Resources */}
+              <div>
+                <h4 className="mb-4 font-semibold text-white">Resources</h4>
+                <ul className="space-y-2">
+                  <li><a href="#" className="transition hover:text-white">Help Center</a></li>
+                  <li><a href="#" className="transition hover:text-white">Documentation</a></li>
+                  <li><a href="#" className="transition hover:text-white">API Reference</a></li>
+                </ul>
+              </div>
+
+              {/* Contact */}
+              <div>
+                <h4 className="mb-4 font-semibold text-white">Contact</h4>
+                <p className="text-sm">CampusConnect HQ</p>
+                <p className="text-sm">123 University Road</p>
+                <p className="text-sm">Phone: +91 123 456 7890</p>
+                <p className="text-sm">Email: support@campusconnect.com</p>
+              </div>
+
+              {/* Social / Newsletter */}
+              <div>
+                <h4 className="mb-4 font-semibold text-white">Stay Connected</h4>
+                <div className="flex gap-4 mb-4">
+                  <a href="#" className="transition hover:text-white">🌐</a>
+                  <a href="#" className="transition hover:text-white">🐦</a>
+                  <a href="#" className="transition hover:text-white">📘</a>
+                  <a href="#" className="transition hover:text-white">📸</a>
+                </div>
+                <form className="flex flex-col gap-2">
+                  <input
+                    type="email"
+                    placeholder="Your email"
+                    className="p-2 text-gray-900 rounded"
+                  />
+                  <button className="px-4 py-2 text-white transition bg-indigo-600 rounded hover:bg-indigo-700">
+                    Subscribe
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div className="pt-4 mt-8 text-sm text-center text-gray-400 border-t border-gray-700">
+              &copy; 2026 CampusConnect. All rights reserved.
+            </div>
+          </footer>
+        </div>
       </div>
     </div>
   );
