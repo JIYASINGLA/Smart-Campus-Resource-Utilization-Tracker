@@ -11,29 +11,25 @@ export default function RoomAvailability() {
   const [equipmentFilter, setEquipmentFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
-  // Dummy data
   useEffect(() => {
-    setRooms([
-      { id: 1, name: "L-402", capacity: 45, available: true, department: "CSE", equipment: "Projector" },
-      { id: 2, name: "L-403", capacity: 60, available: false, department: "IT", equipment: "AC" },
-      { id: 3, name: "L-404", capacity: 50, available: true, department: "ECE", equipment: "Projector" },
-      { id: 4, name: "L-405", capacity: 70, available: true, department: "CSE", equipment: "AC" },
-      { id: 5, name: "L-406", capacity: 80, available: true, department: "IT", equipment: "Projector" },
-      { id: 6, name: "L-407", capacity: 40, available: true, department: "ECE", equipment: "AC" },
-    ]);
+    fetch("http://localhost:5000/api/rooms")
+      .then(res => res.json())
+      .then(data => setRooms(data))
+      .catch(err => console.error(err));
   }, []);
 
-  // Filter Logic
   const filteredRooms = rooms.filter((room) => {
+    const isAvailable = room.current_occupancy < room.capacity;
+
     return (
-      room.name.toLowerCase().includes(search.toLowerCase()) &&
-      (capacityFilter === "All" || room.capacity >= capacityFilter) &&
-      (departmentFilter === "All" || room.department === departmentFilter) &&
-      (equipmentFilter === "All" || room.equipment === equipmentFilter) &&
-      (!expressOnly || room.available === true)
+      room.room_number.toLowerCase().includes(search.toLowerCase()) &&
+      (capacityFilter === "All" || room.capacity >= Number(capacityFilter)) &&
+      (departmentFilter === "All" || room.department_name === departmentFilter) &&
+      (!expressOnly || isAvailable)
     );
   });
 
+ 
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* LEFT CONTENT */}

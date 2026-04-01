@@ -12,7 +12,7 @@ export default function Labs() {
   const [softwareFilter, setSoftwareFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
-  // 🔥 FETCH FROM BACKEND
+  // ✅ Backend Fetch
   useEffect(() => {
     fetch("http://localhost:5000/api/labs")
       .then(res => res.json())
@@ -20,7 +20,7 @@ export default function Labs() {
       .catch(err => console.error(err));
   }, []);
 
-  // 🔥 FILTER FIXED
+  // ✅ Filter Logic
   const filteredLabs = labs.filter((lab) => {
     const isAvailable = lab.current_occupancy < lab.systems;
 
@@ -46,16 +46,7 @@ export default function Labs() {
             <p className="text-gray-500">Check & book labs instantly</p>
           </div>
 
-          <button
-            onClick={() => setExpressOnly(!expressOnly)}
-            className={`px-4 py-2 rounded-lg text-white shadow ${
-              expressOnly
-                ? "bg-gradient-to-r from-blue-500 to-green-400"
-                : "bg-gray-400"
-            }`}
-          >
-            ⚡ Express Booking
-          </button>
+          
         </div>
 
         {/* FILTERS */}
@@ -108,16 +99,27 @@ export default function Labs() {
         {/* GRID */}
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredLabs.map((lab, index) => {
-
             const isAvailable = lab.current_occupancy < lab.systems;
+            const occupancy =
+              (lab.current_occupancy / lab.systems) * 100;
 
             return (
-              <motion.div key={lab.lab_id} >
-
-                <img src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg" className="object-cover w-full h-32 mb-3 rounded-xl"/>
+              <motion.div
+                key={lab.lab_id}
+                whileHover={{ scale: 1.04 }}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.08 }}
+                className="p-4 transition bg-white shadow-md rounded-2xl hover:shadow-xl"
+              >
+                <img
+                  src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg"
+                  className="object-cover w-full h-32 mb-3 rounded-xl"
+                />
 
                 <h2 className="text-lg font-bold">{lab.lab_name}</h2>
 
+                {/* Status */}
                 <div className="flex items-center gap-2 mt-1 text-sm">
                   {isAvailable ? (
                     <CheckCircle className="text-green-500" size={16} />
@@ -129,8 +131,11 @@ export default function Labs() {
                   </span>
                 </div>
 
-                <p className="mt-1 text-xs text-gray-500">{lab.department_name}</p>
+                <p className="mt-1 text-xs text-gray-500">
+                  {lab.department_name}
+                </p>
 
+                {/* Systems + Software */}
                 <div className="flex justify-between mt-3 text-sm">
                   <span className="flex items-center gap-1">
                     <Cpu size={14} /> {lab.systems}
@@ -140,10 +145,25 @@ export default function Labs() {
                   </span>
                 </div>
 
-                <button className="w-full py-2 mt-3 text-white rounded-lg bg-gradient-to-r from-blue-500 to-green-400">
-                  Book Lab →
-                </button>
+                {/* 🔥 NEW TIMELINE (from 2nd code) */}
+                <div className="flex gap-1 mt-3">
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-2 flex-1 rounded ${
+                        i < Math.floor(occupancy / 12)
+                          ? "bg-red-400"
+                          : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
 
+                <p className="mt-2 text-xs text-gray-400">
+                  {Math.round(occupancy)}% Occupied
+                </p>
+
+                
               </motion.div>
             );
           })}
@@ -159,7 +179,10 @@ export default function Labs() {
         <h2 className="mb-4 font-bold text-blue-700">Live Status</h2>
 
         <div className="space-y-3">
-          <StatBox label="Available" value={labs.filter(l => l.current_occupancy < l.systems).length} />
+          <StatBox
+            label="Available"
+            value={labs.filter(l => l.current_occupancy < l.systems).length}
+          />
           <StatBox label="Total Labs" value={labs.length} />
         </div>
       </div>

@@ -46,20 +46,9 @@ export default function Rooms() {
             </p>
           </div>
 
-          <div className="flex gap-3">
-            <input
-              type="date"
-              className="px-4 py-2 border rounded-lg"
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
+        
 
-            <button
-              onClick={() => setExpressOnly(!expressOnly)}
-              className="px-4 py-2 text-white rounded-lg bg-gradient-to-r from-blue-500 to-green-400"
-            >
-              Express Booking
-            </button>
-          </div>
+       
         </div>
 
         {/* FILTER BOX */}

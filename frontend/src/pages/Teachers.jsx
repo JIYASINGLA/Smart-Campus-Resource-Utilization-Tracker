@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState , useEffect } from "react";
 import SidebarAdmin from "../components/SidebarAdmin";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
@@ -16,13 +16,32 @@ const teachersData = [
   { name: "Mrs. Iyer", subject: "Cloud Computing", room: "Room 305", status: "Available" },
 ];
 
-export default function Teachers() {
+
+export default function TeacherStudent() {
+  const [teachers, setTeachers] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
 
-  const filteredTeachers = teachersData.filter((teacher) => {
-    const matchesSearch = teacher.name.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "All" || teacher.status === statusFilter;
+  // 🔥 FETCH FROM BACKEND
+  useEffect(() => {
+    fetch("http://localhost:5000/api/teachers")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Teachers:", data); // debug
+        setTeachers(data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  // 🔥 FILTER LOGIC
+  const filteredTeachers = teachers.filter((teacher) => {
+    const matchesSearch =
+      teacher.name?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "All" || teacher.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 

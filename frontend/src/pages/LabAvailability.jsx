@@ -11,27 +11,32 @@ export default function LabAvailability() {
   const [systemFilter, setSystemFilter] = useState("All");
   const [softwareFilter, setSoftwareFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
+  
 
+  
+  // 🔥 FETCH FROM BACKEND
   useEffect(() => {
-    setLabs([
-      { id: 1, name: "Computer Lab 1", systems: 60, available: true, department: "CSE", software: "Java" },
-      { id: 2, name: "AI Lab", systems: 40, available: false, department: "CSE", software: "Python" },
-      { id: 3, name: "Electronics Lab", systems: 35, available: true, department: "ECE", software: "MATLAB" },
-      { id: 4, name: "Networking Lab", systems: 50, available: true, department: "IT", software: "Cisco" },
-      { id: 5, name: "Programming Lab", systems: 70, available: true, department: "CSE", software: "C++" },
-      { id: 6, name: "Microprocessor Lab", systems: 30, available: false, department: "ECE", software: "Assembly" },
-    ]);
+    fetch("http://localhost:5000/api/labs")
+      .then(res => res.json())
+      .then(data => setLabs(data))
+      .catch(err => console.error(err));
   }, []);
 
+  // 🔥 FILTER FIXED
   const filteredLabs = labs.filter((lab) => {
+    const isAvailable = lab.current_occupancy < lab.systems;
+
     return (
-      lab.name.toLowerCase().includes(search.toLowerCase()) &&
-      (departmentFilter === "All" || lab.department === departmentFilter) &&
-      (systemFilter === "All" || lab.systems >= systemFilter) &&
+      lab.lab_name.toLowerCase().includes(search.toLowerCase()) &&
+      (departmentFilter === "All" || lab.department_name === departmentFilter) &&
+      (systemFilter === "All" || lab.systems >= Number(systemFilter)) &&
       (softwareFilter === "All" || lab.software === softwareFilter) &&
-      (!expressOnly || lab.available === true)
+      (!expressOnly || isAvailable)
     );
   });
+
+  
+
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
