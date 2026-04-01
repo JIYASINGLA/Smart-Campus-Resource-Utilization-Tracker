@@ -9,10 +9,9 @@ export default function Rooms() {
   const [selectedDate, setSelectedDate] = useState("");
   const [capacityFilter, setCapacityFilter] = useState("All");
   const [departmentFilter, setDepartmentFilter] = useState("All");
-  const [equipmentFilter, setEquipmentFilter] = useState("All"); // kept (UI same)
+  const [equipmentFilter, setEquipmentFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
-  // 🔥 FETCH FROM BACKEND
   useEffect(() => {
     fetch("http://localhost:5000/api/rooms")
       .then(res => res.json())
@@ -20,7 +19,6 @@ export default function Rooms() {
       .catch(err => console.error(err));
   }, []);
 
-  // 🔥 FILTER LOGIC FIXED
   const filteredRooms = rooms.filter((room) => {
     const isAvailable = room.current_occupancy < room.capacity;
 
@@ -29,7 +27,6 @@ export default function Rooms() {
       (capacityFilter === "All" || room.capacity >= Number(capacityFilter)) &&
       (departmentFilter === "All" || room.department_name === departmentFilter) &&
       (!expressOnly || isAvailable)
-      // equipmentFilter skipped because not in DB (but UI kept)
     );
   });
 
@@ -172,10 +169,11 @@ export default function Rooms() {
                   {[...Array(8)].map((_, i) => (
                     <div
                       key={i}
-                      className={`w-4 h-4 rounded ${i < Math.floor(occupancyPercent / 12)
+                      className={`w-4 h-4 rounded ${
+                        i < Math.floor(occupancyPercent / 12)
                           ? "bg-red-300"
                           : "bg-gray-200"
-                        }`}
+                      }`}
                     ></div>
                   ))}
                 </div>
@@ -184,12 +182,6 @@ export default function Rooms() {
                   Next: 2:00 PM - Advanced A
                 </div>
 
-                <button
-                  onClick={() => alert(`Room ${room.room_number} Booked!`)}
-                  className="w-full py-2 mt-3 text-white rounded-lg bg-gradient-to-r from-blue-500 to-green-400 hover:from-blue-600 hover:to-green-500"
-                >
-                  Book This Room →
-                </button>
               </motion.div>
             );
           })}
