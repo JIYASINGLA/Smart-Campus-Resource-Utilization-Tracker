@@ -1,59 +1,78 @@
-const express = require("express");
+import express from "express";
+import db from "../db.js"; // ✅ your promise pool
+
 const router = express.Router();
-const db = require("../db"); // create this db.js that exports MySQL connection
 
-// POST new booking
-router.post("/", (req, res) => {
-  const {
-    department,
-    room,
-    date,
-    startTime,
-    endTime,
-    purpose,
-    requesterName,
-    requesterDept,
-  } = req.body;
+// ================= POST: Create Booking =================
+router.post("/", async (req, res) => {
+  try {
+    const {
+      department,
+      room,
+      date,
+      startTime,
+      endTime,
+      purpose,
+      requesterName,
+      requesterDept,
+    } = req.body;
 
-  if (!department || !room || !date || !startTime || !endTime || !purpose || !requesterName || !requesterDept) {
-    return res.status(400).json({ error: "All fields are required" });
-  }
-
-  const query = `
-    INSERT INTO bookings
-    (department, room, date, startTime, endTime, purpose, requesterName, requesterDept)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-
-  db.query(
-    query,
-    [department, room, date, startTime, endTime, purpose, requesterName, requesterDept],
-    (err, result) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Database error" });
-      }
-      res.json({ message: "Booking submitted successfully", bookingId: result.insertId });
+    // ✅ Validation
+    if (
+      !department || !room || !date || !startTime ||
+      !endTime || !purpose || !requesterName || !requesterDept
+    ) {
+      return res.status(400).json({ error: "All fields are required" });
     }
-  );
+
+    const query = `
+      INSERT INTO bookings
+      (department, room, date, startTime, endTime, purpose, requesterName, requesterDept)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const [result] = await db.query(query, [
+      department,
+      room,
+      date,
+      startTime,
+      endTime,
+      purpose,
+      requesterName,
+      requesterDept,
+    ]);
+
+    res.json({
+      message: "Booking submitted successfully",
+      bookingId: result.insertId,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
-// GET bookings (check availability)
-router.get("/", (req, res) => {
-  const { room, date } = req.query;
 
-  if (!room || !date) {
-    return res.status(400).json({ error: "Room and date are required" });
-  }
+// ================= GET: Check Availability =================
+router.get("/", async (req, res) => {
+  try {
+    const { room, date } = req.query;
 
-  const query = "SELECT * FROM bookings WHERE room = ? AND date = ?";
-  db.query(query, [room, date], (err, results) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Database error" });
+    if (!room || !date) {
+      return res.status(400).json({ error: "Room and date are required" });
     }
-    res.json(results); // returns [] if no bookings
-  });
+
+    const query = "SELECT * FROM bookings WHERE room = ? AND date = ?";
+
+    const [results] = await db.query(query, [room, date]);
+
+    res.json(results); // ✅ always array
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
-module.exports = router;
+export default router;

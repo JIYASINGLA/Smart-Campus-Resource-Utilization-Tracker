@@ -1,38 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import SidebarStudent from "../components/SidebarStudent";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 
-const teachersData = [
-  { name: "Dr. Sharma", subject: "Data Structures", room: "Room 101", status: "Available" },
-  { name: "Prof. Mehta", subject: "Operating System", room: "Room 170", status: "In Class" },
-  { name: "Ms. Verma", subject: "DBMS", room: "Lab 3", status: "Available" },
-  { name: "Mr. Singh", subject: "Computer Networks", room: "Room 201", status: "On Leave" },
-  { name: "Mrs. Gupta", subject: "Mathematics", room: "Room 105", status: "In Class" },
-  { name: "Dr. Aggarwal", subject: "Artificial Intelligence", room: "Lab 5", status: "Available" },
-  { name: "Prof. Bansal", subject: "Machine Learning", room: "Room 210", status: "In Class" },
-  { name: "Ms. Kaur", subject: "Software Engineering", room: "Room 120", status: "Available" },
-  { name: "Mr. Arora", subject: "Cyber Security", room: "Lab 2", status: "On Leave" },
-  { name: "Mrs. Iyer", subject: "Cloud Computing", room: "Room 305", status: "Available" },
-];
-
 export default function TeacherStudent() {
+  const [teachers, setTeachers] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const filteredTeachers = teachersData.filter((teacher) => {
-    const matchesSearch = teacher.name.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === "All" || teacher.status === statusFilter;
+  // 🔥 FETCH FROM BACKEND
+  useEffect(() => {
+    fetch("http://localhost:5000/api/teachers")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Teachers:", data); // debug
+        setTeachers(data);
+      })
+      .catch(err => console.error(err));
+  }, []);
+
+  // 🔥 FILTER LOGIC
+  const filteredTeachers = teachers.filter((teacher) => {
+    const matchesSearch =
+      teacher.name?.toLowerCase().includes(search.toLowerCase());
+
+    const matchesStatus =
+      statusFilter === "All" || teacher.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
+
+  // 🔥 FIX Tailwind dynamic class bug
+  const colorMap = {
+    "Available": "bg-green-600",
+    "In Class": "bg-blue-600",
+    "On Leave": "bg-red-600",
+    "All": "bg-gray-600",
+  };
 
   return (
     <div className="flex h-screen bg-gray-50">
       <SidebarStudent />
 
       <div className="flex-1 p-8 overflow-auto bg-gradient-to-br from-blue-50 via-white to-green-50">
-        
-        {/* Header */}
+
+        {/* HEADER */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -42,7 +54,7 @@ export default function TeacherStudent() {
           <p className="text-gray-500">Track availability, subjects & live status</p>
         </motion.div>
 
-        {/* Search + Filter */}
+        {/* SEARCH + FILTER */}
         <div className="flex flex-col gap-4 p-4 mb-6 border shadow-xl bg-white/60 backdrop-blur-lg rounded-xl border-white/40 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center w-full gap-3">
             <Search className="text-gray-400" />
@@ -56,31 +68,23 @@ export default function TeacherStudent() {
           </div>
 
           <div className="flex gap-2">
-            {["All", "Available", "In Class", "On Leave"].map((status) => {
-              const color =
-                status === "Available"
-                  ? "green"
-                  : status === "In Class"
-                  ? "blue"
-                  : status === "On Leave"
-                  ? "red"
-                  : "gray";
-              return (
-                <button
-                  key={status}
-                  onClick={() => setStatusFilter(status)}
-                  className={`px-4 py-2 rounded-lg text-white ${
-                    statusFilter === status ? `bg-${color}-600` : `bg-${color}-400`
-                  }`}
-                >
-                  {status}
-                </button>
-              );
-            })}
+            {["All", "Available", "In Class", "On Leave"].map((status) => (
+              <button
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                className={`px-4 py-2 rounded-lg text-white ${
+                  statusFilter === status
+                    ? colorMap[status]
+                    : "bg-gray-400"
+                }`}
+              >
+                {status}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Table */}
+        {/* TABLE */}
         <div className="overflow-hidden border shadow-2xl bg-white/60 backdrop-blur-xl rounded-2xl border-white/40">
           <table className="w-full text-sm text-center">
             <thead className="text-white bg-gradient-to-r from-blue-500 to-green-400">
@@ -95,7 +99,7 @@ export default function TeacherStudent() {
             <tbody>
               {filteredTeachers.map((teacher, i) => (
                 <motion.tr
-                  key={i}
+                  key={teacher.teacher_id}
                   whileHover={{ scale: 1.02 }}
                   className="transition border-b hover:bg-white/50"
                 >
@@ -107,8 +111,12 @@ export default function TeacherStudent() {
                     />
                     <span className="font-semibold">{teacher.name}</span>
                   </td>
+
                   <td className="p-4">{teacher.subject}</td>
-                  <td className="p-4">{teacher.room}</td>
+
+                  {/* 🔥 IMPORTANT: backend field */}
+                  <td className="p-4">{teacher.assigned_room}</td>
+
                   <td
                     className={`p-4 font-bold ${
                       teacher.status === "Available"
@@ -126,23 +134,27 @@ export default function TeacherStudent() {
           </table>
         </div>
 
-        {/* Stats */}
+        {/* STATS */}
         <div className="grid grid-cols-1 gap-6 mt-8 md:grid-cols-4">
           {[
-            { title: "Total Teachers", value: teachersData.length, color: "from-blue-500 to-green-400" },
+            {
+              title: "Total Teachers",
+              value: teachers.length,
+              color: "from-blue-500 to-green-400",
+            },
             {
               title: "Available",
-              value: teachersData.filter((t) => t.status === "Available").length,
+              value: teachers.filter((t) => t.status === "Available").length,
               color: "from-green-500 to-emerald-400",
             },
             {
               title: "In Class",
-              value: teachersData.filter((t) => t.status === "In Class").length,
+              value: teachers.filter((t) => t.status === "In Class").length,
               color: "from-blue-500 to-cyan-400",
             },
             {
               title: "On Leave",
-              value: teachersData.filter((t) => t.status === "On Leave").length,
+              value: teachers.filter((t) => t.status === "On Leave").length,
               color: "from-red-500 to-orange-400",
             },
           ].map((card, i) => (
@@ -162,7 +174,7 @@ export default function TeacherStudent() {
           ))}
         </div>
 
-        {/* Footer */}
+        {/* FOOTER */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -12,30 +12,24 @@ export default function Labs() {
   const [softwareFilter, setSoftwareFilter] = useState("All");
   const [expressOnly, setExpressOnly] = useState(false);
 
+  // 🔥 FETCH FROM BACKEND
   useEffect(() => {
-    setLabs([
-      { id: 1, name: "Computer Lab 1", systems: 60, available: true, department: "CSE", software: "Java" },
-      { id: 2, name: "AI Lab", systems: 40, available: false, department: "CSE", software: "Python" },
-      { id: 3, name: "Electronics Lab", systems: 35, available: true, department: "ECE", software: "MATLAB" },
-      { id: 4, name: "Networking Lab", systems: 50, available: true, department: "IT", software: "Cisco" },
-      { id: 5, name: "Programming Lab", systems: 70, available: true, department: "CSE", software: "C++" },
-      { id: 6, name: "Microprocessor Lab", systems: 30, available: false, department: "ECE", software: "Assembly" },
-      { id: 7, name: "Data Science Lab", systems: 45, available: true, department: "CSE", software: "Python" },
-      { id: 8, name: "Robotics Lab", systems: 25, available: true, department: "ECE", software: "MATLAB" },
-      { id: 9, name: "Cybersecurity Lab", systems: 40, available: false, department: "IT", software: "Linux" },
-      { id: 10, name: "Cloud Computing Lab", systems: 55, available: true, department: "CSE", software: "AWS" },
-      { id: 11, name: "Embedded Systems Lab", systems: 35, available: true, department: "ECE", software: "C" },
-      { id: 12, name: "Mobile App Lab", systems: 50, available: true, department: "IT", software: "Flutter" },
-    ]);
+    fetch("http://localhost:5000/api/labs")
+      .then(res => res.json())
+      .then(data => setLabs(data))
+      .catch(err => console.error(err));
   }, []);
 
+  // 🔥 FILTER FIXED
   const filteredLabs = labs.filter((lab) => {
+    const isAvailable = lab.current_occupancy < lab.systems;
+
     return (
-      lab.name.toLowerCase().includes(search.toLowerCase()) &&
-      (departmentFilter === "All" || lab.department === departmentFilter) &&
-      (systemFilter === "All" || lab.systems >= systemFilter) &&
+      lab.lab_name.toLowerCase().includes(search.toLowerCase()) &&
+      (departmentFilter === "All" || lab.department_name === departmentFilter) &&
+      (systemFilter === "All" || lab.systems >= Number(systemFilter)) &&
       (softwareFilter === "All" || lab.software === softwareFilter) &&
-      (!expressOnly || lab.available === true)
+      (!expressOnly || isAvailable)
     );
   });
 
@@ -43,17 +37,25 @@ export default function Labs() {
     <div className="flex min-h-screen bg-gradient-to-br from-blue-100 via-cyan-100 to-green-100">
       <SidebarStudent />
 
-      {/* MAIN */}
       <div className="flex-1 p-6">
 
         {/* HEADER */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-blue-700">Lab Availability</h1>
-            <p className="text-gray-500">View labs and check availability</p>
+            <p className="text-gray-500">Check & book labs instantly</p>
           </div>
 
-          
+          <button
+            onClick={() => setExpressOnly(!expressOnly)}
+            className={`px-4 py-2 rounded-lg text-white shadow ${
+              expressOnly
+                ? "bg-gradient-to-r from-blue-500 to-green-400"
+                : "bg-gray-400"
+            }`}
+          >
+            ⚡ Express Booking
+          </button>
         </div>
 
         {/* FILTERS */}
@@ -66,7 +68,7 @@ export default function Labs() {
               placeholder="Search Lab..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="p-2 border rounded-lg w-52 focus:ring-2 focus:ring-blue-400"
+              className="p-2 border rounded-lg w-52"
             />
 
             <select
@@ -74,9 +76,9 @@ export default function Labs() {
               onChange={(e) => setDepartmentFilter(e.target.value)}
             >
               <option value="All">Department</option>
-              <option value="CSE">CSE</option>
-              <option value="IT">IT</option>
-              <option value="ECE">ECE</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Electrical Engineering">Electrical Engineering</option>
+              <option value="Information Technology">Information Technology</option>
             </select>
 
             <select
@@ -84,7 +86,6 @@ export default function Labs() {
               onChange={(e) => setSystemFilter(e.target.value)}
             >
               <option value="All">Systems</option>
-              <option value="25">25+</option>
               <option value="30">30+</option>
               <option value="50">50+</option>
               <option value="70">70+</option>
@@ -100,78 +101,54 @@ export default function Labs() {
               <option value="MATLAB">MATLAB</option>
               <option value="Cisco">Cisco</option>
               <option value="C++">C++</option>
-              <option value="C">C</option>
-              <option value="AWS">AWS</option>
-              <option value="Flutter">Flutter</option>
-              <option value="Linux">Linux</option>
-              <option value="Assembly">Assembly</option>
             </select>
           </div>
         </div>
 
         {/* GRID */}
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {filteredLabs.map((lab, index) => {
 
-          {filteredLabs.map((lab, index) => (
-            <motion.div
-              key={lab.id}
-              whileHover={{ scale: 1.04 }}
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.08 }}
-              className="p-4 transition border shadow-md bg-white/70 backdrop-blur-lg rounded-2xl hover:shadow-xl border-white/40"
-            >
-              <img
-                src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg"
-                className="object-cover w-full h-32 mb-3 rounded-xl"
-              />
+            const isAvailable = lab.current_occupancy < lab.systems;
 
-              <h2 className="text-lg font-bold">{lab.name}</h2>
+            return (
+              <motion.div key={lab.lab_id} >
 
-              <div className="flex items-center gap-2 mt-1 text-sm">
-                {lab.available ? (
-                  <CheckCircle className="text-green-500" size={16} />
-                ) : (
-                  <XCircle className="text-red-500" size={16} />
-                )}
-                <span className={lab.available ? "text-green-500" : "text-red-500"}>
-                  {lab.available ? "Available" : "Occupied"}
-                </span>
-              </div>
+                <img src="https://img.freepik.com/premium-photo/bright-computer-lab-with-modern-equipment-technology_889056-39214.jpg" className="object-cover w-full h-32 mb-3 rounded-xl"/>
 
-              <p className="mt-1 text-xs text-gray-500">{lab.department}</p>
+                <h2 className="text-lg font-bold">{lab.lab_name}</h2>
 
-              <div className="flex justify-between mt-3 text-sm">
-                <span className="flex items-center gap-1">
-                  <Cpu size={14} /> {lab.systems}
-                </span>
-                <span className="flex items-center gap-1">
-                  <FlaskConical size={14} /> {lab.software}
-                </span>
-              </div>
+                <div className="flex items-center gap-2 mt-1 text-sm">
+                  {isAvailable ? (
+                    <CheckCircle className="text-green-500" size={16} />
+                  ) : (
+                    <XCircle className="text-red-500" size={16} />
+                  )}
+                  <span className={isAvailable ? "text-green-500" : "text-red-500"}>
+                    {isAvailable ? "Available" : "Occupied"}
+                  </span>
+                </div>
 
-              {/* Timeline */}
-              <div className="flex gap-1 mt-3">
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className={`h-2 flex-1 rounded ${
-                      i < 3 ? "bg-red-400" : "bg-gray-200"
-                    }`}
-                  />
-                ))}
-              </div>
+                <p className="mt-1 text-xs text-gray-500">{lab.department_name}</p>
 
-              <p className="mt-2 text-xs text-gray-400">
-                Next Free: 3:00 PM
-              </p>
+                <div className="flex justify-between mt-3 text-sm">
+                  <span className="flex items-center gap-1">
+                    <Cpu size={14} /> {lab.systems}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <FlaskConical size={14} /> {lab.software}
+                  </span>
+                </div>
 
-              {/* Removed Book Button for Students */}
-            </motion.div>
-          ))}
+                <button className="w-full py-2 mt-3 text-white rounded-lg bg-gradient-to-r from-blue-500 to-green-400">
+                  Book Lab →
+                </button>
+
+              </motion.div>
+            );
+          })}
         </div>
 
-        {/* FOOTER */}
         <p className="mt-8 text-center text-gray-500">
           Showing {filteredLabs.length} labs
         </p>
@@ -182,19 +159,14 @@ export default function Labs() {
         <h2 className="mb-4 font-bold text-blue-700">Live Status</h2>
 
         <div className="space-y-3">
-          <StatBox label="Available" value={labs.filter(l => l.available).length} />
+          <StatBox label="Available" value={labs.filter(l => l.current_occupancy < l.systems).length} />
           <StatBox label="Total Labs" value={labs.length} />
-        </div>
-
-        <div className="p-3 mt-4 text-sm text-blue-800 bg-gradient-to-r from-blue-100 to-green-100 rounded-xl">
-          Booking requires lab assistant approval
         </div>
       </div>
     </div>
   );
 }
 
-/* SMALL COMPONENT */
 const StatBox = ({ label, value }) => (
   <div className="p-3 text-center bg-gray-100 rounded-xl">
     <p className="text-lg font-bold">{value}</p>

@@ -1,21 +1,18 @@
-// db.js
-const mysql = require("mysql2");
+import mysql from "mysql2";
 
-// Create connection
-const db = mysql.createConnection({
+const pool = mysql.createPool({
   host: "localhost",
-  user: "root",        // your MySQL username
-  password: "root",// your MySQL password
-  database: "campusDB"
+  user: "root",
+  password: "Lovepreet@2006",
+  database: "campus_resource_tracker",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Connect to MySQL
-db.connect((err) => {
-  if (err) {
-    console.error("MySQL connection error:", err);
-    return;
-  }
-  console.log("Connected to MySQL database campusDB");
-});
+// Promise-based pool
+const promisePool = pool.promise();
 
-module.exports = db;
+console.log("✅ MySQL Pool Created...");
+
+export default promisePool;

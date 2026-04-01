@@ -57,32 +57,46 @@ const FacultySchedule = () => {
   const [schedule, setSchedule] = React.useState([]);
 
   React.useEffect(() => {
-  // Protect page (only faculty)
-  const role = localStorage.getItem("role");
-  if (role !== "faculty") {
-    window.location.href = "/";
-  }
+    // Protect page (only faculty)
+    const role = localStorage.getItem("role");
+    if (role !== "faculty") {
+      window.location.href = "/";
+    }
 
-  // Get logged in user
-  const user = JSON.parse(localStorage.getItem("currentUser"));
-  if (user && user.name) {
-    setFacultyName(user.name);
-  }
+    // Get logged in user
+    const user = JSON.parse(localStorage.getItem("currentUser"));
+    if (user && user.name) {
+      setFacultyName(user.name);
+    }
 
-  // Get teacher ID
-  const teacherID = localStorage.getItem("teacherID");
+    // Get teacher ID
+    const teacherID = localStorage.getItem("teacherID");
 
-  // Fetch timetable from DB according to teacherID
-  fetch(`http://localhost:5000/timetable/teacher/${teacherID}`)
-    .then(res => res.json())
-    .then(data => setSchedule(data))
-    .catch(err => console.log(err));
+    // Fetch timetable from DB according to teacherID
+    fetch(`http://localhost:5000/timetable/teacher/${teacherID}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("API Response:", data); // 🔍 DEBUG
 
-  // Load saved notes
-  const savedNotes = localStorage.getItem("teacherNotes");
-  if (savedNotes) setNotes(savedNotes);
+        // ✅ Ensure it's an array
+        if (Array.isArray(data)) {
+          setSchedule(data);
+        } else if (Array.isArray(data.data)) {
+          setSchedule(data.data); // if wrapped inside "data"
+        } else {
+          setSchedule([]); // fallback
+        }
+      })
+      .catch(err => {
+        console.log(err);
+        setSchedule([]);
+      });
 
-}, []);
+    // Load saved notes
+    const savedNotes = localStorage.getItem("teacherNotes");
+    if (savedNotes) setNotes(savedNotes);
+
+  }, []);
 
   /* Save Notes */
   const saveNotes = () => {
@@ -115,7 +129,7 @@ const FacultySchedule = () => {
 
   return (
     <div className="flex">
-   
+
 
       {/* BACKGROUND */}
       <div
@@ -153,29 +167,29 @@ const FacultySchedule = () => {
             </div>
 
             <div className="p-5 bg-white shadow rounded-2xl">
-    <div className="flex justify-between">
-      <h3 className="text-gray-500">Approvals</h3>
-      <ClipboardList className="text-indigo-600" />
-    </div>
-    <h2 className="text-2xl font-bold">{approvals.length}</h2>
-  </div>
+              <div className="flex justify-between">
+                <h3 className="text-gray-500">Approvals</h3>
+                <ClipboardList className="text-indigo-600" />
+              </div>
+              <h2 className="text-2xl font-bold">{approvals.length}</h2>
+            </div>
 
-  <div className="p-5 bg-white shadow rounded-2xl">
-    <div className="flex justify-between">
-      <h3 className="text-gray-500">Notifications</h3>
-      <Bell className="text-indigo-600" />
-    </div>
-    <h2 className="text-2xl font-bold">{notifications.length}</h2>
-  </div>
+            <div className="p-5 bg-white shadow rounded-2xl">
+              <div className="flex justify-between">
+                <h3 className="text-gray-500">Notifications</h3>
+                <Bell className="text-indigo-600" />
+              </div>
+              <h2 className="text-2xl font-bold">{notifications.length}</h2>
+            </div>
 
-  <div className="p-5 bg-white shadow rounded-2xl">
-    <div className="flex justify-between">
-      <h3 className="text-gray-500">Weekly Load</h3>
-      <Clock className="text-indigo-600" />
-    </div>
-    <h2 className="text-2xl font-bold">{schedule.length * 1.5} hrs</h2>
-  </div>
-</div>
+            <div className="p-5 bg-white shadow rounded-2xl">
+              <div className="flex justify-between">
+                <h3 className="text-gray-500">Weekly Load</h3>
+                <Clock className="text-indigo-600" />
+              </div>
+              <h2 className="text-2xl font-bold">{schedule.length * 1.5} hrs</h2>
+            </div>
+          </div>
 
           {/* MAIN GRID */}
           <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -193,11 +207,10 @@ const FacultySchedule = () => {
                       <button
                         key={btn}
                         onClick={() => setFilter(btn)}
-                        className={`px-3 py-1 text-xs rounded-full border ${
-                          filter === btn
-                            ? "bg-indigo-600 text-white"
-                            : "bg-white text-gray-600"
-                        }`}
+                        className={`px-3 py-1 text-xs rounded-full border ${filter === btn
+                          ? "bg-indigo-600 text-white"
+                          : "bg-white text-gray-600"
+                          }`}
                       >
                         {btn}
                       </button>
@@ -224,13 +237,12 @@ const FacultySchedule = () => {
                           {cls.room} • {cls.students} Students
                         </p>
 
-                        <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${
-                          cls.status === "Completed"
-                            ? "bg-green-100 text-green-600"
-                            : cls.status === "Ongoing"
+                        <span className={`inline-block mt-2 px-3 py-1 text-xs rounded-full ${cls.status === "Completed"
+                          ? "bg-green-100 text-green-600"
+                          : cls.status === "Ongoing"
                             ? "bg-blue-100 text-blue-600"
                             : "bg-orange-100 text-orange-500"
-                        }`}>
+                          }`}>
                           {cls.status}
                         </span>
                       </div>

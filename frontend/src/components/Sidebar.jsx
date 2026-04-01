@@ -40,10 +40,9 @@ const Sidebar = () => {
                 to={item.path}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-4 py-2 rounded-xl transition-all duration-200
-                  ${
-                    isActive
-                      ? "bg-white text-purple-600 shadow-md font-semibold"
-                      : "text-white/90 hover:bg-white/20 hover:translate-x-1"
+                  ${isActive
+                    ? "bg-white text-purple-600 shadow-md font-semibold"
+                    : "text-white/90 hover:bg-white/20 hover:translate-x-1"
                   }`
                 }
               >
