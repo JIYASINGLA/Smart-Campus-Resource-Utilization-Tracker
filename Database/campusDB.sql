@@ -78,4 +78,4 @@ CREATE TABLE IF NOT EXISTS merge_requests (
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-select * from merge_requests
+select * from merge_requests;
