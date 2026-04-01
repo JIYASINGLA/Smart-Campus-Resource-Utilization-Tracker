@@ -17,7 +17,7 @@ import Notifications from "./pages/Notifications";
 
 // Teacher / Admin Pages
 import RequestBooking from "./pages/RequestBooking";
-import BookingRequest from "./pages/BookingRequest";
+
 import Teacher from "./pages/TeacherAvailability";
 import Teachers from "./pages/Teachers";
 
@@ -98,14 +98,7 @@ function App() {
         }
       />
 
-      <Route
-        path="/booking"
-        element={
-          <MainLayout>
-            <BookingRequest />
-          </MainLayout>
-        }
-      />
+      
 
       <Route
         path="/labsavailability"

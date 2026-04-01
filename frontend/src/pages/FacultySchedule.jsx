@@ -54,16 +54,34 @@ const FacultySchedule = () => {
   const [filter, setFilter] = React.useState("All");
   const [notes, setNotes] = React.useState("");
   const [facultyName, setFacultyName] = React.useState("Faculty");
+  const [schedule, setSchedule] = React.useState([]);
 
-React.useEffect(() => {
+  React.useEffect(() => {
+  // Protect page (only faculty)
+  const role = localStorage.getItem("role");
+  if (role !== "faculty") {
+    window.location.href = "/";
+  }
+
+  // Get logged in user
   const user = JSON.parse(localStorage.getItem("currentUser"));
-
-  if (user) {
+  if (user && user.name) {
     setFacultyName(user.name);
   }
 
+  // Get teacher ID
+  const teacherID = localStorage.getItem("teacherID");
+
+  // Fetch timetable from DB according to teacherID
+  fetch(`http://localhost:5000/timetable/teacher/${teacherID}`)
+    .then(res => res.json())
+    .then(data => setSchedule(data))
+    .catch(err => console.log(err));
+
+  // Load saved notes
   const savedNotes = localStorage.getItem("teacherNotes");
   if (savedNotes) setNotes(savedNotes);
+
 }, []);
 
   /* Save Notes */
@@ -89,7 +107,7 @@ React.useEffect(() => {
   });
 
   /* Filter Logic */
-  const filteredSchedule = todaySchedule.filter((cls) => {
+  const filteredSchedule = schedule.filter((cls) => {
     if (filter === "All") return true;
     if (filter === "Next") return cls.status === "Ongoing";
     return cls.status === filter;
@@ -97,7 +115,7 @@ React.useEffect(() => {
 
   return (
     <div className="flex">
-
+   
 
       {/* BACKGROUND */}
       <div
@@ -131,33 +149,33 @@ React.useEffect(() => {
                 <h3 className="text-gray-500">Classes Today</h3>
                 <BookOpen className="text-indigo-600" />
               </div>
-              <h2 className="text-2xl font-bold">4</h2>
+              <h2 className="text-2xl font-bold">{schedule.length}</h2>
             </div>
 
             <div className="p-5 bg-white shadow rounded-2xl">
-              <div className="flex justify-between">
-                <h3 className="text-gray-500">Approvals</h3>
-                <ClipboardList className="text-indigo-600" />
-              </div>
-              <h2 className="text-2xl font-bold">3</h2>
-            </div>
+    <div className="flex justify-between">
+      <h3 className="text-gray-500">Approvals</h3>
+      <ClipboardList className="text-indigo-600" />
+    </div>
+    <h2 className="text-2xl font-bold">{approvals.length}</h2>
+  </div>
 
-            <div className="p-5 bg-white shadow rounded-2xl">
-              <div className="flex justify-between">
-                <h3 className="text-gray-500">Notifications</h3>
-                <Bell className="text-indigo-600" />
-              </div>
-              <h2 className="text-2xl font-bold">12</h2>
-            </div>
+  <div className="p-5 bg-white shadow rounded-2xl">
+    <div className="flex justify-between">
+      <h3 className="text-gray-500">Notifications</h3>
+      <Bell className="text-indigo-600" />
+    </div>
+    <h2 className="text-2xl font-bold">{notifications.length}</h2>
+  </div>
 
-            <div className="p-5 bg-white shadow rounded-2xl">
-              <div className="flex justify-between">
-                <h3 className="text-gray-500">Weekly Load</h3>
-                <Clock className="text-indigo-600" />
-              </div>
-              <h2 className="text-2xl font-bold">18 hrs</h2>
-            </div>
-          </div>
+  <div className="p-5 bg-white shadow rounded-2xl">
+    <div className="flex justify-between">
+      <h3 className="text-gray-500">Weekly Load</h3>
+      <Clock className="text-indigo-600" />
+    </div>
+    <h2 className="text-2xl font-bold">{schedule.length * 1.5} hrs</h2>
+  </div>
+</div>
 
           {/* MAIN GRID */}
           <div className="grid items-start gap-6 lg:grid-cols-3">
@@ -188,9 +206,9 @@ React.useEffect(() => {
                 </div>
 
                 <div className="space-y-6">
-                  {filteredSchedule.map((cls) => (
+                  {filteredSchedule.map((cls, index) => (
                     <motion.div
-                      key={cls.time}
+                      key={index}
                       whileHover={{ scale: 1.02 }}
                       className="flex gap-4"
                     >

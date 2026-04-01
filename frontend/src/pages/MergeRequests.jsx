@@ -16,11 +16,16 @@ const MergeLectures = () => {
 
   const [mergeList, setMergeList] = useState([]);
 
-  useEffect(() => {
-    const data = JSON.parse(localStorage.getItem("mergeRequests")) || [];
-    setMergeList(data);
-  }, []);
-
+ useEffect(() => {
+  fetch("http://localhost:5000/merge-requests") // your backend route
+    .then((res) => res.json())
+    .then((data) => setMergeList(data))
+    .catch((err) => console.error(err));
+}, []);
+// After useEffect
+const totalRequests = mergeList.length;
+const approvedCount = mergeList.filter(req => req.status === "Approved").length;
+const pendingCount = mergeList.filter(req => req.status === "Pending").length;
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -28,39 +33,41 @@ const MergeLectures = () => {
     });
   };
 
-  const handleSubmit = () => {
-    if (
-      !formData.subject ||
-      !formData.sectionA ||
-      !formData.sectionB ||
-      !formData.date ||
-      !formData.time ||
-      !formData.room ||
-      !formData.reason
-    ) {
-      alert("Please fill full form first!");
-      return;
-    }
+  const handleSubmit = async () => {
+  if (!formData.subject || !formData.sectionA || !formData.sectionB || !formData.date || !formData.time || !formData.room || !formData.reason) {
+    alert("Please fill all fields!");
+    return;
+  }
 
-    const requests =
-      JSON.parse(localStorage.getItem("mergeRequests")) || [];
-
-    requests.push(formData);
-    localStorage.setItem("mergeRequests", JSON.stringify(requests));
-    setMergeList(requests);
-
-    alert("Merge Request Sent to Admin!");
-
-    setFormData({
-      subject: "",
-      sectionA: "",
-      sectionB: "",
-      date: "",
-      time: "",
-      room: "",
-      reason: "",
+  try {
+    const res = await fetch("http://localhost:5000/merge-requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
-  };
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setMergeList([data, ...mergeList]); // Add new request to list
+      alert("Merge Request Sent to Admin!");
+      setFormData({
+        subject: "",
+        sectionA: "",
+        sectionB: "",
+        date: "",
+        time: "",
+        room: "",
+        reason: "",
+      });
+    } else {
+      alert(data.error || "Failed to send merge request");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error sending request. Try again later.");
+  }
+};
 
   return (
     <div className="flex">
@@ -84,32 +91,30 @@ const MergeLectures = () => {
               </h1>
             </div>
 
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135755.png"
-              className="w-16"
-            />
+          
           </motion.div>
+          
 
           {/* Top Cards */}
-          <div className="grid gap-6 mb-6 md:grid-cols-3">
-            <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-purple-100 shadow-md rounded-2xl">
-              <Users className="mb-2 text-purple-500" />
-              <p className="text-gray-500">Total Requests</p>
-              <h2 className="text-2xl font-bold">{mergeList.length}</h2>
-            </motion.div>
+<div className="grid gap-6 mb-6 md:grid-cols-3">
+  <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-purple-100 shadow-md rounded-2xl">
+    <Users className="mb-2 text-purple-500" />
+    <p className="text-gray-500">Total Requests</p>
+    <h2 className="text-2xl font-bold">{totalRequests}</h2>
+  </motion.div>
 
-            <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-green-100 shadow-md rounded-2xl">
-              <CheckCircle className="mb-2 text-green-500" />
-              <p className="text-gray-500">Approved</p>
-              <h2 className="text-2xl font-bold">2</h2>
-            </motion.div>
+  <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-green-100 shadow-md rounded-2xl">
+    <CheckCircle className="mb-2 text-green-500" />
+    <p className="text-gray-500">Approved</p>
+    <h2 className="text-2xl font-bold">{approvedCount}</h2>
+  </motion.div>
 
-            <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-pink-100 shadow-md rounded-2xl">
-              <AlertCircle className="mb-2 text-pink-500" />
-              <p className="text-gray-500">Pending</p>
-              <h2 className="text-2xl font-bold">{mergeList.length}</h2>
-            </motion.div>
-          </div>
+  <motion.div whileHover={{ scale: 1.05 }} className="p-5 bg-white border border-pink-100 shadow-md rounded-2xl">
+    <AlertCircle className="mb-2 text-pink-500" />
+    <p className="text-gray-500">Pending</p>
+    <h2 className="text-2xl font-bold">{pendingCount}</h2>
+  </motion.div>
+</div>
 
           {/* Form */}
           <motion.div

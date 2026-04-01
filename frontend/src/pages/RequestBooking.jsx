@@ -63,37 +63,49 @@ const RequestBooking = () => {
   };
 
   // ✅ UPDATED Submit form with validation
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+  const {
+    department,
+    room,
+    date,
+    startTime,
+    endTime,
+    purpose,
+    requesterName,
+    requesterDept,
+  } = formData;
 
-    const {
-      department,
-      room,
-      date,
-      startTime,
-      endTime,
-      purpose,
-      requesterName,
-      requesterDept,
-    } = formData;
+  if (
+    !department ||
+    !room ||
+    !date ||
+    !startTime ||
+    !endTime ||
+    !purpose ||
+    !requesterName ||
+    !requesterDept
+  ) {
+    setError("Please fill all fields before submitting.");
+    return;
+  }
 
-    if (
-      !department ||
-      !room ||
-      !date ||
-      !startTime ||
-      !endTime ||
-      !purpose ||
-      !requesterName ||
-      !requesterDept
-    ) {
-      setError("Please fill all fields before submitting.");
-      return; // stop submission
-    }
+  try {
+    const response = await fetch("http://localhost:5000/bookings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
 
-    console.log("Submitted Data:", formData);
-    alert("Booking Submitted Successfully!");
+    if (!response.ok) throw new Error("Failed to submit booking");
+
+    const data = await response.json();
+    alert(data.message); // "Booking submitted successfully"
     handleClear();
-  };
+  } catch (err) {
+    console.error(err);
+    setError("Error submitting booking. Try again later.");
+  }
+};
 
   return (
     <div className="flex-1 min-h-screen p-10 bg-gray-50">
@@ -162,28 +174,26 @@ const RequestBooking = () => {
           {/* Check Status Button */}
 <div className="flex flex-col justify-end">
   <button
-    onClick={() => {
-      if (!formData.department || !formData.room) {
-        setError("Please select both Department and Room to check status.");
+    onClick={async () => {
+      if (!formData.department || !formData.room || !formData.date) {
+        setError("Please select Department, Room, and Date to check status.");
         return;
       }
 
-      // Simulated bookings data
-      const simulatedBookings = [
-        { room: "Room 101", date: "2026-03-29" },
-        { room: "Lab A", date: "2026-03-30" },
-        { room: "Room 102", date: "2026-03-29" },
-      ];
+      try {
+        const res = await fetch(
+          `http://localhost:5000/bookings?room=${formData.room}&date=${formData.date}`
+        );
+        const bookings = await res.json();
 
-      const today = formData.date || new Date().toISOString().split("T")[0];
-      const isBooked = simulatedBookings.some(
-        (b) => b.room === formData.room && b.date === today
-      );
-
-      if (isBooked) {
-        alert(`${formData.room} is already booked on ${today}.`);
-      } else {
-        alert(`${formData.room} is available on ${today}.`);
+        if (bookings.length > 0) {
+          alert(`${formData.room} is already booked on ${formData.date}.`);
+        } else {
+          alert(`${formData.room} is available on ${formData.date}.`);
+        }
+      } catch (err) {
+        console.error(err);
+        setError("Error checking status. Try again later.");
       }
     }}
     className="px-4 py-2 border border-purple-200 rounded-lg bg-gradient-to-r from-pink-100 to-purple-100 hover:opacity-90"

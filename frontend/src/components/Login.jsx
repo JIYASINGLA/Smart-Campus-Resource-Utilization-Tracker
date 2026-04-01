@@ -44,7 +44,16 @@ export default function Login() {
       return;
     }
 
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    // Store full user
+localStorage.setItem("currentUser", JSON.stringify(user));
+
+// Store role separately
+localStorage.setItem("role", user.role);
+
+// Store teacher ID (use email as ID for now)
+if (user.role === "faculty") {
+  localStorage.setItem("teacherID", user.email);
+}
     setError("");
     alert(`✅ Welcome ${user.name}! Redirecting...`);
     navigate(roleConfig[role].redirect);
